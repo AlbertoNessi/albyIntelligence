@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="cdced5b9-04e8-4df6-8c0b-012ce5626b16" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/public/foo.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.symfony.local.yaml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/Controller/ListController.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/templates/list/list.html.twig" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.json" beforeDir="false" afterPath="$PROJECT_DIR$/composer.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/composer.lock" beforeDir="false" afterPath="$PROJECT_DIR$/composer.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/symfony.lock" beforeDir="false" afterPath="$PROJECT_DIR$/symfony.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html.twig" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/main/dashboard.html.twig" beforeDir="false" afterPath="$PROJECT_DIR$/templates/main/dashboard.html.twig" afterDir="false" />
     </list>
@@ -131,12 +139,21 @@
       <path value="$PROJECT_DIR$/vendor/psr/container" />
       <path value="$PROJECT_DIR$/vendor/twig/extra-bundle" />
       <path value="$PROJECT_DIR$/vendor/symfony/yaml" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client" />
+      <path value="$PROJECT_DIR$/vendor/symfony/asset-mapper" />
+      <path value="$PROJECT_DIR$/vendor/symfony/http-client-contracts" />
+      <path value="$PROJECT_DIR$/vendor/symfony/asset" />
+      <path value="$PROJECT_DIR$/vendor/symfony/process" />
+      <path value="$PROJECT_DIR$/vendor/symfonycasts/tailwind-bundle" />
     </include_path>
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 4
 }</component>
   <component name="ProjectId" id="2jwAzlk08lkCrsvCOcQob3xSFG7" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -156,6 +173,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/templates/list" />
       <recent name="$PROJECT_DIR$/templates/main" />
       <recent name="$PROJECT_DIR$/symfony-docker/templates/main" />
     </key>
@@ -190,7 +208,7 @@
       <workItem from="1722455137897" duration="3754000" />
       <workItem from="1722535712807" duration="10207000" />
       <workItem from="1722840158007" duration="1096000" />
-      <workItem from="1722867867435" duration="916000" />
+      <workItem from="1722867867435" duration="6950000" />
     </task>
     <servers />
   </component>
