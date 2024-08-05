@@ -12,14 +12,28 @@
         {% block javascripts %}
         {% endblock %}
     </head>
-    <body class="bg-info-subtle">
+    <body class="bg-primary-subtle">
         {% block navbar %}
             <div class="container">
-                <header class="d-flex justify-content-center py-3">
+                <div class="d-flex justify-content-center py-3">
                     <h1>Alby Intelligence!</h1>
+                </div>
+                <div class="text-center">
+                    <h6>A simple project to mimic Appli Intelligence with Symfony + ChatGPT API</h6>
+                </div>
+                <header class="d-flex justify-content-center py-3">
+                    <ul class="nav nav-pills">
+                        <li class="nav-item"><a href="/" class="nav-link active" aria-current="page">Home</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Contatti</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Email</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Messaggi</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Note</a></li>
+                        <li class="nav-item"><a href="#" class="nav-link">Promemoria</a></li>
+                    </ul>
                 </header>
             </div>
         {% endblock %}
+
         {% block body %}{% endblock %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>

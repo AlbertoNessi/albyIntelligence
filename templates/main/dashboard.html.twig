@@ -1,11 +1,21 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container-fluid">
+    <div class="container-fluid mt-5">
         <div class="row">
-            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-                <h1 class="h2">Dashboard</h1>
-            </main>
+            <div class="col-2"></div>
+            <div class="col-8 px-md-4">
+                <form>
+                    <div class="form-floating mx-auto p-2">
+                        <textarea class="form-control" placeholder="Chiedi quello che vuoi" id="userMessage"></textarea>
+                        <label for="userMessage">Chiedi quello che vuoi</label>
+                    </div>
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Invia</button>
+                    </div>
+                </form>
+            </div>
+            <div class="col-2"></div>
         </div>
     </div>
 {% endblock %}
