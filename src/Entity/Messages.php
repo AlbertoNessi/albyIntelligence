@@ -2,12 +2,12 @@
 
 namespace App\Entity;
 
-use App\Repository\EmailsRepository;
+use App\Repository\MessagesRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: EmailsRepository::class)]
-class Emails
+#[ORM\Entity(repositoryClass: MessagesRepository::class)]
+class Messages
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -18,10 +18,7 @@ class Emails
     private ?string $sender = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    private ?string $receivers = null;
-
-    #[ORM\Column(length: 100, nullable: true)]
-    private ?string $object = null;
+    private ?string $receiver = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
@@ -43,26 +40,14 @@ class Emails
         return $this;
     }
 
-    public function getReceivers(): ?string
+    public function getReceiver(): ?string
     {
-        return $this->receivers;
+        return $this->receiver;
     }
 
-    public function setReceivers(?string $receivers): static
+    public function setReceiver(?string $receiver): static
     {
-        $this->receivers = $receivers;
-
-        return $this;
-    }
-
-    public function getObject(): ?string
-    {
-        return $this->object;
-    }
-
-    public function setObject(?string $object): static
-    {
-        $this->object = $object;
+        $this->receiver = $receiver;
 
         return $this;
     }
