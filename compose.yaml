@@ -44,7 +44,6 @@ services:
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
       # You should definitely change the password in production
-      MYSQL_RANDOM_ROOT_PASSWORD: "true"
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root_psw}
       MYSQL_USER: ${MYSQL_USER:-app}
     healthcheck:
@@ -57,6 +56,16 @@ services:
       # You may use a bind-mounted host directory instead, so that it is harder to accidentally remove the volume and lose all your data!
       # - ./docker/db/data:/var/lib/mysql:rw
 ###< doctrine/doctrine-bundle ###
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    platform: linux/amd64
+    environment:
+      PMA_HOST: database
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: root_psw
+    ports:
+      - "8081:80"
 
 volumes:
   caddy_data:
