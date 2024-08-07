@@ -2,7 +2,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="addNewRowModalLabel">New {{ tableName }}</h1>
+                <h1 class="modal-title fs-5" id="addNewRowModalLabel">New row</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -10,14 +10,12 @@
                     {% for column in columns %}
                         <div class="mb-3">
                             <label for="{{ column }}" class="col-form-label">{{ column }}</label>
-                            <input type="text" class="form-control" id="{{ column }}" name="{{ column }}">
+                            <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" />
                         </div>
-                    {% endfor %}>
+                    {% endfor %}
                 </form>
             </div>
-            <div id="liveAlertPlaceholder">
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
+            <div id="liveAlertPlaceholder"></div>
             <div class="modal-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-outline-secondary text-left" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" id="saveBtn">Save</button>

@@ -5,7 +5,7 @@
 {% endblock %}
 
 {% block modals %}
-    {% include('add_new_row_modal.html.twig') %}
+    {% include('modals/add_new_row_modal.html.twig') %}
 {% endblock %}
 
 {% block body %}
@@ -17,17 +17,16 @@
                     class="btn btn-outline-dark"
                     data-bs-toggle="modal"
                     data-bs-target="#addNewRowModal"
-                    id="addNewRowBtn"
-                >Add new</button>
+                    id="addNewRowBtn">Add new</button>
             </div>
         </div>
-        <div class="row">
-            <table class="table table-hover table-bordered table-striped border-black" id="listTable">
+        <div class="row mt-4">
+            <table class="table table-hover table-bordered table-striped border-dark" id="listTable">
                 <thead>
                     <tr>
                         {% for column in columns %}
                             <th scope="col">{{ column }}</th>
-                        {% endfor %}>
+                        {% endfor %}
                     </tr>
                 </thead>
                 <tbody>
@@ -55,6 +54,7 @@
             });
 
             dataObject.tableName = '{{ tableName }}';
+            dataObject.table_id = '{{ table_id }}';
 
             $.ajax({
                 url: '{{ path('addNewRow_url') }}',
@@ -85,7 +85,7 @@
             // Make the alert disappear after 3 seconds
             setTimeout(function() {
                 $(".alert").alert('close');
-            }, 3000);
+            }, 2000);
         }
 
 

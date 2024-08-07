@@ -14,12 +14,38 @@
                     </div>
                     <div class="row">
                         <div class="text-end">
-                            <button type="submit" class="btn btn-dark">Send</button>
+                            <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Send</button>
                         </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+{% endblock %}
+
+{% block js %}
+    <script>
+        $('#sendUserMessageBtn').on('click', function(event) {
+            event.preventDefault();
+            var message = $('#userMessage').val();
+
+            $.ajax({
+                url: '{{ path('chatgpt_request_url') }}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ messages: [{ role: 'user', content: message }] }),
+                success: function(response) {
+                    showAlert('Success! Response received: ' + response.content, 'success');
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Error! Failed to send data.', 'danger');
+                },
+                complete: function() {
+                    // Clear the textarea after request completion
+                    $('#userMessage').val('');
+                }
+            });
+        });
+    </script>
 {% endblock %}
 

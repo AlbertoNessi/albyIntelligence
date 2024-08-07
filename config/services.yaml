@@ -19,6 +19,12 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+                
+    ChatGPTService:
+        class: ../src/Services/ChatGPTService.php
+        arguments:
+            openai.api_key: '%env(OPENAI_API_SEC_KEY)%'
+        autowire: true
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

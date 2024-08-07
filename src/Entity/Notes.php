@@ -14,27 +14,12 @@ class Notes
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(type: Types::GUID)]
-    private ?string $uuid = null;
-
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $note = null;
 
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getUuid(): ?string
-    {
-        return $this->uuid;
-    }
-
-    public function setUuid(string $uuid): static
-    {
-        $this->uuid = $uuid;
-
-        return $this;
     }
 
     public function getNote(): ?string
@@ -48,4 +33,6 @@ class Notes
 
         return $this;
     }
+
+
 }

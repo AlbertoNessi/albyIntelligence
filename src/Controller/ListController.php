@@ -7,7 +7,10 @@ use App\Entity\Emails;
 use App\Entity\Events;
 use App\Entity\Messages;
 use App\Entity\Notes;
+use App\Services\EntityFactoryService;
+use App\Services\EntityPersistenceService;
 use App\Services\GetTableDataService;
+use App\Services\RequestHandlerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -23,56 +26,36 @@ class ListController extends AbstractController
         $tableName = $getTableDataService->getTableNameByTableId($id);
         $data = $getTableDataService->getTableDataByTableId($entityManager, $id);
 
-        /*dd($data);*/
         return $this->render('list/list.html.twig', [
             'list' => $id,
             'columns' => $columns,
             'tableName' => $tableName,
             'table_id' => $id,
-            'data' => $data
+            'data' => $data,
         ]);
     }
 
     #[Route('/add_new_row', name: 'addNewRow_url')]
-    public function addNewRow(EntityManagerInterface $entityManager, Request $request): Response
+    public function addNewRow(
+        RequestHandlerService $requestHandlerService,
+        EntityFactoryService $entityFactoryService,
+        EntityPersistenceService $entityPersistenceService,
+        GetTableDataService $getTableDataService,
+        Request $request
+    ): Response
     {
-        $parameters = json_decode($request->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        $parameters = $requestHandlerService->getParametersFromRequest($request);
+        $entityClass = $getTableDataService->getEntityNameByTableId($parameters['table_id']);
+        /*$entityClass = $parameters['entityClass'];
+        unset($parameters['entityClass']); // Remove entityClass from parameters*/
 
-        if ($parameters['tableName'] === "contatti") {
-            $newRow = new Contacts();
+        try {
+            $newRow = $entityFactoryService->createEntity($entityClass, $parameters);
+            $entityPersistenceService->saveEntity($newRow);
 
-            $newRow->setName($parameters['name']);
-            $newRow->setSurname($parameters['surname']);
-            $newRow->setPhone($parameters['phone']);
-            $newRow->setEmail($parameters['email']);
-        } elseif ($parameters['tableName'] === "emails") {
-            $newRow = new Emails();
-
-            $newRow->setMessage($parameters['message']);
-            $newRow->setObject($parameters['object']);
-            $newRow->setReceivers($parameters['receiver']);
-            $newRow->setSender($parameters['sender']);
-        } elseif ($parameters['tableName'] === "messaggi") {
-            $newRow = new Messages();
-
-            $newRow->setMessage($parameters['message']);
-            $newRow->setSender($parameters['sender']);
-            $newRow->setReceiver($parameters['receiver']);
-        } elseif ($parameters['tableName'] === "note") {
-            $newRow = new Notes();
-            $newRow->setNote($parameters['note']);
-        } elseif ($parameters['tableName'] === "eventi") {
-            $newRow = new Events();
-
-            $newRow->setNote($parameters['note']);
-            $newRow->setDate(new \DateTime($parameters['date']));
-            $newRow->setTitle($parameters['title']);
-            $newRow->setSubtitle($parameters['subtitle']);
+            return new Response("Success!");
+        } catch (\Exception $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
-
-        $entityManager->persist($newRow);
-        $entityManager->flush();
-
-        return new Response("Success!");
     }
 }

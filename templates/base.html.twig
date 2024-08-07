@@ -15,8 +15,8 @@
     </head>
     <body>
         {% block modals %}
-            {% include('success_modal.html.twig') %}
-            {% include('error_modal.html.twig') %}
+            {% include('modals/success_modal.html.twig') %}
+            {% include('modals/error_modal.html.twig') %}
         {% endblock %}
 
         {% block navbar %}
@@ -24,7 +24,7 @@
         {% endblock %}
 
         {% block alert %}
-            <div id="alertContainer"></div>
+            <div class="container" id="alertContainer"></div>
         {% endblock %}
 
         {% block body %}{% endblock %}

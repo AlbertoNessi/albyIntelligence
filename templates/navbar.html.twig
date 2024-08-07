@@ -1,14 +1,50 @@
 <div class="d-flex justify-content-center py-3">
-    <h1 class="text-2xl text-center">Welcome in Alby Intelligence!</h1>
+    <h1 class="text-center fw-bold">Welcome in Alby Intelligence</h1>
 </div>
 <div class="text-center">
     <h6>A simple project to mimic Apple Intelligence with Symfony and the ChatGPT API</h6>
 </div>
 <header class="text-center flex justify-around my-4">
-    <a class="btn btn-outline-dark" href="{{ path('dashboard_url') }}" role="button" aria-current="page">Home</a>
-    <a class="btn btn-outline-dark" href="{{ path('list_url', {id: 1}) }}" role="button" aria-current="page">Contacts</a>
-    <a class="btn btn-outline-dark" href="{{ path('list_url', {id: 2}) }}" role="button" aria-current="page">Emails</a>
-    <a class="btn btn-outline-dark" href="{{ path('list_url', {id: 3}) }}" role="button" aria-current="page">Messages</a>
-    <a class="btn btn-outline-dark" href="{{ path('list_url', {id: 4}) }}" role="button" aria-current="page">Notes</a>
-    <a class="btn btn-outline-dark" href="{{ path('list_url', {id: 5}) }}" role="button" aria-current="page">Events</a>
+    <a
+        id="home"
+        class="btn {% if table_id == 0 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('dashboard_url') }}"
+        role="button"
+        aria-current="page"
+    >Home</a>
+    <a
+        id="contacts"
+        class="btn {% if table_id == 1 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 1}) }}"
+        role="button"
+        aria-current="page"
+    >Contacts</a>
+    <a
+        id="emails"
+        class="btn {% if table_id == 2 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 2}) }}"
+        role="button"
+        aria-current="page"
+    >Emails</a>
+    <a
+        id="messages"
+        class="btn {% if table_id == 3 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 3}) }}"
+        role="button"
+        aria-current="page"
+    >Messages</a>
+    <a
+        id="notes"
+        class="btn {% if table_id == 4 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 4}) }}"
+        role="button"
+        aria-current="page"
+    >Notes</a>
+    <a
+        id="events"
+        class="btn {% if table_id == 5 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 5}) }}"
+        role="button"
+        aria-current="page"
+    >Events</a>
 </header>
