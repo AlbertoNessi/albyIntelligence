@@ -18,7 +18,7 @@ class Emails
     private ?string $sender = null;
 
     #[ORM\Column(length: 50, nullable: true)]
-    private ?string $receivers = null;
+    private ?string $receiver = null;
 
     #[ORM\Column(length: 100, nullable: true)]
     private ?string $object = null;
@@ -43,14 +43,14 @@ class Emails
         return $this;
     }
 
-    public function getReceivers(): ?string
+    public function getReceiver(): ?string
     {
-        return $this->receivers;
+        return $this->receiver;
     }
 
-    public function setReceivers(?string $receivers): static
+    public function setReceiver(?string $receiver): static
     {
-        $this->receivers = $receivers;
+        $this->receiver = $receiver;
 
         return $this;
     }
@@ -78,4 +78,6 @@ class Emails
 
         return $this;
     }
+
+
 }

@@ -1070,7 +1070,7 @@ sys|schema||mysql.sys|localhost|TRIGGER|G</Grants>
     </schema>
     <schema id="289" parent="1" name="mysql">
       <Grants>user|||mysql.session|localhost|SELECT|G</Grants>
-      <LastIntrospectionLocalTimestamp>2024-08-06.14:46:33</LastIntrospectionLocalTimestamp>
+      <LastIntrospectionLocalTimestamp>2024-08-07.10:00:09</LastIntrospectionLocalTimestamp>
       <CollationName>utf8mb4_0900_ai_ci</CollationName>
     </schema>
     <schema id="290" parent="1" name="performance_schema">

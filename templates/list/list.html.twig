@@ -1,6 +1,12 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}{{ tableName }}{% endblock %}
+{% block title %}
+    {{ parent() }} - {{ tableName }}
+{% endblock %}
+
+{% block modals %}
+    {% include('add_new_row_modal.html.twig') %}
+{% endblock %}
 
 {% block body %}
     <div class="container">
@@ -12,55 +18,76 @@
                     data-bs-toggle="modal"
                     data-bs-target="#addNewRowModal"
                     id="addNewRowBtn"
-                >Add new row</button>
+                >Add new</button>
             </div>
         </div>
         <div class="row">
             <table class="table table-hover table-bordered table-striped border-black" id="listTable">
                 <thead>
-                <tr>
-                    {% for column in columns %}
-                        <th scope="col">{{ column }}</th>
-                    {% endfor %}>
-                </tr>
+                    <tr>
+                        {% for column in columns %}
+                            <th scope="col">{{ column }}</th>
+                        {% endfor %}>
+                    </tr>
                 </thead>
                 <tbody>
-                {% for row in data  %}
-                    <tr>
-                        <td>{{ row }}</td>
-                    </tr>
-                {% endfor %}
+                    {% for rows in data  %}
+                        <tr>
+                            {% for rowData in rows %}
+                                <td>{{ rowData }}</td>
+                            {% endfor %}
+                        </tr>
+                    {% endfor %}
                 </tbody>
             </table>
         </div>
     </div>
-
-    {% include('add_new_row_modal.html.twig') %}
 {% endblock %}
 
 {% block js %}
     <script>
-        $(document).ready(function() {
+        $("#saveBtn").on("click", function (){
+            let formData = $("#addNewRowForm").serializeArray();
+            let dataObject = {};
 
+            $.each(formData, function(i, field){
+                dataObject[field.name] = field.value;
+            });
 
-            $("#saveBtn").on("click", function (){
-                $.ajax({
-                    url: '{{ path('addNewRow_url') }}',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify({
-                        entityName: '{{ entityName }}'
-                    }),
-                    success: function(response) {
-                        console.log("Data sent successfully:", response);
-                        // Handle success response
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error in sending data:", error);
-                        // Handle error response
-                    }
-                });
+            dataObject.tableName = '{{ tableName }}';
+
+            $.ajax({
+                url: '{{ path('addNewRow_url') }}',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(dataObject),
+                success: function(response) {
+                    showAlert('Success! Data sent successfully.', 'success');
+
+                },
+                error: function(xhr, status, error) {
+                    showAlert('Error! Failed to send data.', 'danger');
+                },
+                complete: function() {
+                    $('#addNewRowModal').modal('hide');
+                }
             });
         });
+
+        function showAlert(message, type) {
+            let alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+            $("#alertContainer").html(alertHtml);
+
+            // Make the alert disappear after 3 seconds
+            setTimeout(function() {
+                $(".alert").alert('close');
+            }, 3000);
+        }
+
+
     </script>
 {% endblock %}

@@ -21,7 +21,7 @@ class GetTableDataService
 
     private const array TABLE_NAMES = [
         1 => 'contatti',
-        2 => 'email',
+        2 => 'emails',
         3 => 'messaggi',
         4 => 'note',
         5 => 'eventi'
@@ -53,9 +53,27 @@ class GetTableDataService
     public function getTableDataByTableId(EntityManagerInterface $entityManager, int $tableId): array
     {
         $entityName = $this->getEntityNameByTableId($tableId);
-        if ($entityName) {
-            return $entityManager->getRepository($entityName)->findAll();
+        $columns = $this->getColumnsByTableId($tableId);
+
+        if ($entityName && $columns) {
+            $repository = $entityManager->getRepository($entityName);
+            $results = $repository->findAll();
+
+            // Convert objects to array of arrays with only specified columns
+            return array_map(static function($entity) use ($columns) {
+                $data = [];
+                foreach ($columns as $column) {
+                    $getter = 'get' . ucfirst($column);
+                    if (method_exists($entity, $getter)) {
+                        $data[$column] = $entity->$getter();
+                    } else {
+                        dd($getter);
+                    }
+                }
+                return $data;
+            }, $results);
         }
+
         return [];
     }
 }

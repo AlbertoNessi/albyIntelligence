@@ -14,8 +14,17 @@
         {% endblock %}
     </head>
     <body>
+        {% block modals %}
+            {% include('success_modal.html.twig') %}
+            {% include('error_modal.html.twig') %}
+        {% endblock %}
+
         {% block navbar %}
             {% include('navbar.html.twig') %}
+        {% endblock %}
+
+        {% block alert %}
+            <div id="alertContainer"></div>
         {% endblock %}
 
         {% block body %}{% endblock %}
