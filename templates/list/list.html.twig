@@ -1,25 +1,66 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}
-{% endblock %}
+{% block title %}{{ tableName }}{% endblock %}
 
 {% block body %}
-    <table class="table table-hover table-bordered">
-        <thead>
-            <tr>
-                {% for column in columns %}
-                    <th scope="col">{{ column }}</th>
-                {% endfor %}>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="container">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <button
+                    type="button"
+                    class="btn btn-outline-dark"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addNewRowModal"
+                    id="addNewRowBtn"
+                >Add new row</button>
+            </div>
+        </div>
+        <div class="row">
+            <table class="table table-hover table-bordered table-striped border-black" id="listTable">
+                <thead>
+                <tr>
+                    {% for column in columns %}
+                        <th scope="col">{{ column }}</th>
+                    {% endfor %}>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in data  %}
+                    <tr>
+                        <td>{{ row }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    {% include('add_new_row_modal.html.twig') %}
 {% endblock %}
 
 {% block js %}
     <script>
         $(document).ready(function() {
-            console.log( "ready!" );
+
+
+            $("#saveBtn").on("click", function (){
+                $.ajax({
+                    url: '{{ path('addNewRow_url') }}',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        entityName: '{{ entityName }}'
+                    }),
+                    success: function(response) {
+                        console.log("Data sent successfully:", response);
+                        // Handle success response
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error in sending data:", error);
+                        // Handle error response
+                    }
+                });
+            });
         });
     </script>
 {% endblock %}
