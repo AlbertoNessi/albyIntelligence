@@ -13,6 +13,9 @@
                         </div>
                     </div>
                     <div class="row">
+                        <small>what is the capital of france?</small>
+                    </div>
+                    <div class="row">
                         <div class="text-end">
                             <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Send</button>
                         </div>
@@ -33,9 +36,9 @@
                 url: '{{ path('chatgpt_request_url') }}',
                 type: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify({ messages: [{ role: 'user', content: message }] }),
+                data: JSON.stringify({ message: message }),
                 success: function(response) {
-                    showAlert('Success! Response received: ' + response.content, 'success');
+                    showAlert('Success! Response received: ' + response, 'success');
                 },
                 error: function(xhr, status, error) {
                     showAlert('Error! Failed to send data.', 'danger');
@@ -46,6 +49,20 @@
                 }
             });
         });
+
+        function showAlert(message, type) {
+            let alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
+            $("#alertContainer").html(alertHtml);
+
+            // Make the alert disappear after 3 seconds
+            setTimeout(function() {
+                $(".alert").alert('close');
+            }, 2000);
+        }
     </script>
 {% endblock %}
 

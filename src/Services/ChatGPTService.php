@@ -2,37 +2,39 @@
 
 namespace App\Services;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
-use Symfony\Config\DoctrineConfig;
+use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class ChatGPTService
 {
     private string $apiKey;
+    private string $apiUrl;
+    private HttpClientInterface $client;
+    private LoggerInterface $logger;
 
-    public function __construct(string $apiKey)
+    public function __construct(string $apiKey, string $apiUrl, HttpClientInterface $client, LoggerInterface $logger)
     {
         $this->apiKey = $apiKey;
+        $this->apiUrl = $apiUrl;
+        $this->client = $client;
+        $this->logger = $logger;
     }
 
     /**
      * @param array $messages
      * @param bool $jsonMode
      * @return array
-     * @throws GuzzleException
+     * @throws TransportExceptionInterface
+     * @throws \JsonException
      */
-    public function sendRequest(DoctrineConfig $doctrine, array $messages, bool $jsonMode = true): array
+    public function sendRequest(array $messages, bool $jsonMode = true): array
     {
-        $apiKey = $doctrine->dbal()
-            ->connection('default')
-            ->password(env('OPENAI_API_SEC_KEY'))
-        ;
-
-        $apiUrl = 'https://api.openai.com/v1/chat/completions';
+        $this->logger->info("Entering sendRequest method.");
 
         $requestData = [
             'messages' => $messages,
-            'model' => 'gpt-4',
+            'model' => 'gpt-4o',
             'temperature' => 0.2,
         ];
 
@@ -40,7 +42,7 @@ class ChatGPTService
             $requestData['response_format'] = ['type' => 'json_object'];
         }
 
-        $response = $this->client->post($apiUrl, [
+        $response = $this->client->request('POST', $this->apiUrl, [
             'headers' => [
                 'Content-Type' => 'application/json',
                 'Authorization' => 'Bearer ' . $this->apiKey,
@@ -48,6 +50,12 @@ class ChatGPTService
             'json' => $requestData,
         ]);
 
-        return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        $content = $response->getContent();
+
+        $this->logger->info("Request sent to ChatGPT API.", ['requestData' => $requestData]);
+
+        $this->logger->info("Response: " . $content);
+
+        return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
     }
 }
