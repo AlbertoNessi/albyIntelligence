@@ -34,7 +34,7 @@ class ChatGPTService
 
         $requestData = [
             'messages' => $messages,
-            'model' => 'gpt-4o',
+            'model' => 'gpt-4o-2024-08-06',
             'temperature' => 0.2,
         ];
 

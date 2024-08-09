@@ -28,7 +28,7 @@ class DashboardController extends AbstractController
         $prompt = [
             [
                 'role' => 'system',
-                'content' => "You are a useful assistant that allows the user to retrieve data about its web application from a semantic index. You will be provided with the user query and all the necessary data coming from the semantic index.",
+                'content' => "You are a useful assistant that allows the user to retrieve data about its web application from a semantic index. You will be provided with the user query and all the necessary data coming from the semantic index. Answer with JSON format",
             ],
             [
                 'role' => 'user',
@@ -39,12 +39,12 @@ class DashboardController extends AbstractController
         try {
             $response = $chatGPTService->sendRequest($prompt);
 
-            $responseText = "No response from the API";
+           /* $responseText = "No response from the API";
             if ($response) {
                 $responseText = $response['choices'][0]['message']['content'];
-            }
+            }*/
 
-            return new Response($responseText);
+            return new JsonResponse($response);
         } catch (\Exception $e) {
             return new JsonResponse(['error' => $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         } catch (TransportExceptionInterface $e) {
