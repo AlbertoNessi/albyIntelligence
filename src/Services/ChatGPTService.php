@@ -33,14 +33,16 @@ class ChatGPTService
         $this->logger->info("Entering sendRequest method.");
 
         $requestData = [
-            'messages' => $messages,
             'model' => 'gpt-4o-2024-08-06',
+            'messages' => $messages,
             'temperature' => 0.2,
         ];
 
         if ($jsonMode) {
             $requestData['response_format'] = ['type' => 'json_object'];
         }
+
+        $this->logger->info("Request sent to ChatGPT API.", ['requestData' => $requestData]);
 
         $response = $this->client->request('POST', $this->apiUrl, [
             'headers' => [
@@ -51,9 +53,6 @@ class ChatGPTService
         ]);
 
         $content = $response->getContent();
-
-        $this->logger->info("Request sent to ChatGPT API.", ['requestData' => $requestData]);
-
         $this->logger->info("Response: " . $content);
 
         return json_decode($content, true, 512, JSON_THROW_ON_ERROR);

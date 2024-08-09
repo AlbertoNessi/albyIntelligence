@@ -14,11 +14,16 @@
                     </div>
                     <div class="row">
                         <small>what is the capital of france?</small>
+                        <small>what is 100 + 1.9?</small>
+                        <small>What is the largest number? 1.1 or 1.9?</small>
                     </div>
                     <div class="row">
                         <div class="text-end">
                             <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Send</button>
                         </div>
+                    </div>
+                    <div class="row">
+                        <div id="responseContainer"></div>
                     </div>
                 </form>
             </div>
@@ -30,7 +35,7 @@
     <script>
         $('#sendUserMessageBtn').on('click', function(event) {
             event.preventDefault();
-            var message = $('#userMessage').val();
+            let message = $('#userMessage').val();
 
             $.ajax({
                 url: '{{ path('chatgpt_request_url') }}',
@@ -38,7 +43,9 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ message: message }),
                 success: function(response) {
-                    showAlert('Success! Response received: ' + response, 'success');
+                    let responseText = JSON.parse(response['choices'][0]['message']['content']);
+
+                    showResponse(responseText['result']);
                 },
                 error: function(xhr, status, error) {
                     showAlert('Error! Failed to send data.', 'danger');
@@ -50,6 +57,19 @@
             });
         });
 
+        function showResponse(responseText) {
+            let responseHtml = `
+                <div class="card mt-3">
+                    <div class="card-body">
+                        <h5 class="card-title">Response</h5>
+                        <p class="card-text">${responseText}</p>
+                    </div>
+                </div>`;
+
+            // Append the response to the container
+            $("#responseContainer").html(responseHtml);
+        }
+
         function showAlert(message, type) {
             let alertHtml = `
                 <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -58,11 +78,11 @@
                 </div>`;
             $("#alertContainer").html(alertHtml);
 
-            // Make the alert disappear after 3 seconds
             setTimeout(function() {
                 $(".alert").alert('close');
-            }, 2000);
+            }, 5000);
         }
+
     </script>
 {% endblock %}
 
