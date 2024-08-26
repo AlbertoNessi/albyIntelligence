@@ -31,17 +31,23 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for rows in data %}
+                    {% for row in data %}
                         <tr>
-                            {% for rowData in rows %}
-                                <td>{{ rowData }}</td>
+                            {% for column, value in row %}
+                                <td>
+                                    {% if column == 'date' %}
+                                        {{ value|date("d-m-Y") }}
+                                    {% else %}
+                                        {{ value }}
+                                    {% endif %}
+                                </td>
                             {% endfor %}
                             <td>
-                                <button class="btn btn-outline-danger removeRow" data-id="{{ rows.id }}">Remove</button>
+                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}">Remove</button>
                             </td>
                         </tr>
                     {% endfor %}
-                </tbody>
+                    </tbody>
             </table>
         </div>
     </div>

@@ -9,9 +9,14 @@
                 <form id="addNewRowForm">
                     {% for column in columns %}
                         {% if column != 'id' %}
+                            {% set type = "text" %}
+                            {% if column == 'date' %}
+                                {% set type = "date" %}
+                            {% endif %}
+
                             <div class="mb-3">
                                 <label for="{{ column }}" class="col-form-label">{{ column }}</label>
-                                <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" />
+                                <input type="{{ type }}" class="form-control" id="{{ column }}" name="{{ column }}" />
                             </div>
                         {% endif %}
                     {% endfor %}

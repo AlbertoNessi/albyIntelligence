@@ -16,7 +16,7 @@ class GetTableDataService
         2 => ['id', 'sender', 'receiver', 'object', 'message'],
         3 => ['id', 'sender', 'receiver', 'message'],
         4 => ['id', 'note'],
-        5 => ['id', 'title', 'subtitle', 'note'],
+        5 => ['id', 'date', 'title', 'subtitle', 'note'],
     ];
 
     private const array TABLE_NAMES = [
