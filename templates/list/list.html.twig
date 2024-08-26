@@ -27,6 +27,7 @@
                         {% for column in columns %}
                             <th scope="col">{{ column }}</th>
                         {% endfor %}
+                        <td></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -35,6 +36,9 @@
                             {% for rowData in rows %}
                                 <td>{{ rowData }}</td>
                             {% endfor %}
+                            <td>
+                                <button class="btn btn-outline-danger">Remove</button>
+                            </td>
                         </tr>
                     {% endfor %}
                 </tbody>
