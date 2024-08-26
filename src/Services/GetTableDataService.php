@@ -12,11 +12,11 @@ use Doctrine\ORM\EntityManagerInterface;
 class GetTableDataService
 {
     private const array TABLE_COLUMNS = [
-        1 => ['name', 'surname', 'phone', 'email'],
-        2 => ['sender', 'receiver', 'object', 'message'],
-        3 => ['sender', 'receiver', 'message'],
-        4 => ['note'],
-        5 => ['title', 'subtitle', 'note'],
+        1 => ['id', 'name', 'surname', 'phone', 'email'],
+        2 => ['id', 'sender', 'receiver', 'object', 'message'],
+        3 => ['id', 'sender', 'receiver', 'message'],
+        4 => ['id', 'note'],
+        5 => ['id', 'title', 'subtitle', 'note'],
     ];
 
     private const array TABLE_NAMES = [
@@ -62,6 +62,10 @@ class GetTableDataService
             // Convert objects to array of arrays with only specified columns
             return array_map(static function($entity) use ($columns) {
                 $data = [];
+
+                // Ensure ID is included
+                $data['id'] = $entity->getId();
+
                 foreach ($columns as $column) {
                     $getter = 'get' . ucfirst($column);
                     if (method_exists($entity, $getter)) {

@@ -8,10 +8,12 @@
             <div class="modal-body">
                 <form id="addNewRowForm">
                     {% for column in columns %}
-                        <div class="mb-3">
-                            <label for="{{ column }}" class="col-form-label">{{ column }}</label>
-                            <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" />
-                        </div>
+                        {% if column != 'id' %}
+                            <div class="mb-3">
+                                <label for="{{ column }}" class="col-form-label">{{ column }}</label>
+                                <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" />
+                            </div>
+                        {% endif %}
                     {% endfor %}
                 </form>
             </div>

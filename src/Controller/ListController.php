@@ -13,6 +13,7 @@ use App\Services\GetTableDataService;
 use App\Services\RequestHandlerService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -58,4 +59,36 @@ class ListController extends AbstractController
             return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
     }
+
+    #[Route('/delete_row', name: 'delete_row_url', methods: ['POST'])]
+    public function deleteRow(GetTableDataService $getTableDataService, Request $request, EntityManagerInterface $entityManager): JsonResponse
+    {
+        // Retrieve the ID from the request
+        $id = $request->request->get('id');
+        $tableId = $request->request->get('tableId');
+
+        if (!$id) {
+            return new JsonResponse(['error' => 'Missing ID'], 400);
+        }
+
+        $entityName = $getTableDataService->getEntityNameByTableId($tableId);
+        if (!$entityName) {
+            return new JsonResponse(['error' => 'Invalid entity'], 400);
+        }
+
+        // Find the entity by ID
+        $repository = $entityManager->getRepository($entityName);
+        $entity = $repository->find($id);
+
+        if (!$entity) {
+            return new JsonResponse(['error' => 'Entity not found'], 404);
+        }
+
+        // Remove the entity from the database
+        $entityManager->remove($entity);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => 'Entity deleted successfully']);
+    }
+
 }
