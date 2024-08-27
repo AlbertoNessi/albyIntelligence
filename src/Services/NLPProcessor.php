@@ -18,7 +18,7 @@ class NLPProcessor
      */
     public function processText(string $text): array
     {
-        $command = "python3 scripts/nlp_processor.py " . escapeshellarg($text);
+        $command = "python3 src/scripts/nlp_processor.py " . escapeshellarg($text);
         $output = shell_exec($command);
 
         if ($output === null) {

@@ -13,7 +13,7 @@ class GetTableDataService
 {
     private const array TABLE_COLUMNS = [
         1 => ['id', 'name', 'surname', 'phone', 'email'],
-        2 => ['id', 'sender', 'receiver', 'object', 'message'],
+        2 => ['id', 'sender', 'receiver', 'subject', 'message'],
         3 => ['id', 'sender', 'receiver', 'message'],
         4 => ['id', 'note'],
         5 => ['id', 'date', 'title', 'subtitle', 'note'],

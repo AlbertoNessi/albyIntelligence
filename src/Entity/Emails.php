@@ -21,7 +21,7 @@ class Emails
     private ?string $receiver = null;
 
     #[ORM\Column(length: 100, nullable: true)]
-    private ?string $object = null;
+    private ?string $subject = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $message = null;
@@ -55,14 +55,14 @@ class Emails
         return $this;
     }
 
-    public function getObject(): ?string
+    public function getSubject(): ?string
     {
-        return $this->object;
+        return $this->subject;
     }
 
-    public function setObject(?string $object): static
+    public function setSubject(?string $subject): static
     {
-        $this->object = $object;
+        $this->subject = $subject;
 
         return $this;
     }
