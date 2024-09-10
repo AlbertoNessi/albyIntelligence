@@ -43,9 +43,14 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ message: message }),
                 success: function(response) {
-                    let responseText = JSON.parse(response['choices'][0]['message']['content']);
-
-                    showResponse(responseText['result']);
+                    let responseText = "";
+                    if (response['choices'] === undefined) {
+                        responseText = response['error'];
+                        showResponse(responseText);
+                    } else {
+                        responseText = JSON.parse(response['choices'][0]['message']['content']);
+                        showResponse(responseText['result']);
+                    }
                 },
                 error: function(xhr, status, error) {
                     showAlert('Error! Failed to send data.', 'danger');

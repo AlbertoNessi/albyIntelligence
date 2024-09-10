@@ -156,7 +156,7 @@ class IndexDocumentsCommand extends Command
 
             $entities = $this->nlpProcessorService->processText($content);
             $documents[] = [
-                'index' => 'events',
+                'index' => 'messages',
                 'body' => [
                     'sender' => $message->getSender(),
                     'message' => $message->getMessage(),
@@ -178,7 +178,7 @@ class IndexDocumentsCommand extends Command
 
             $entities = $this->nlpProcessorService->processText($content);
             $documents[] = [
-                'index' => 'events',
+                'index' => 'notes',
                 'body' => [
                     'note' => $note->getNote(),
                     'entities' => $entities,
