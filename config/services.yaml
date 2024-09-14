@@ -33,3 +33,7 @@ services:
     AIElasticSearchService:
         class: App\Services\AIElasticSearchService
         public: true 
+        
+    AIPromptResponseService:
+        class: App\Services\AIPromptResponseService
+        public: true

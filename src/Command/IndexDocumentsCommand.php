@@ -40,166 +40,177 @@ class IndexDocumentsCommand extends Command
 
         $output->writeln('<info>Fetching and preparing documents...</info>');
 
-        // Delete the existing indexes
-        if ($this->client->indices()->exists(['index' => 'contacts'])->asBool()) {
-            $this->client->indices()->delete(['index' => 'contacts']);
+        // List of indices to delete and reindex
+        $indices = ['contacts', 'emails', 'events', 'messages', 'notes'];
+
+        // Delete existing indices
+        foreach ($indices as $index) {
+            if ($this->client->indices()->exists(['index' => $index])->asBool()) {
+                $response = $this->client->indices()->delete(['index' => $index]);
+                if ($response['acknowledged'] !== true) {
+                    $output->writeln("<error>Failed to delete index: {$index}</error>");
+                    return Command::FAILURE;
+                }
+                $output->writeln("<info>Deleted index: {$index}</info>");
+            }
         }
 
-        if ($this->client->indices()->exists(['index' => 'emails'])->asBool()) {
-            $this->client->indices()->delete(['index' => 'emails']);
-        }
+        // Process each entity type and collect documents
+        $this->processEntities(
+            Contacts::class,
+            'contacts',
+            ['name', 'surname', 'email', 'phone'],
+            ['name', 'surname', 'email', 'phone'],
+            $documents,
+            $output
+        );
 
-        if ($this->client->indices()->exists(['index' => 'events'])->asBool()) {
-            $this->client->indices()->delete(['index' => 'events']);
-        }
+        $this->processEntities(
+            Emails::class,
+            'emails',
+            ['sender', 'receiver', 'subject', 'message'],
+            ['sender', 'receiver', 'subject', 'message'],
+            $documents,
+            $output
+        );
 
-        if ($this->client->indices()->exists(['index' => 'messages'])->asBool()) {
-            $this->client->indices()->delete(['index' => 'messages']);
-        }
+        $this->processEntities(
+            Events::class,
+            'events',
+            ['title', 'subtitle', 'note'],
+            ['title', 'subtitle', 'note'],
+            $documents,
+            $output
+        );
 
-        if ($this->client->indices()->exists(['index' => 'notes'])->asBool()) {
-            $this->client->indices()->delete(['index' => 'notes']);
-        }
+        $this->processEntities(
+            Messages::class,
+            'messages',
+            ['sender', 'message', 'receiver'],
+            ['sender', 'message', 'receiver'],
+            $documents,
+            $output
+        );
 
-        $output->writeln('<info>Deleted existing indexes</info>');
+        $this->processEntities(
+            Notes::class,
+            'notes',
+            ['note'],
+            ['note'],
+            $documents,
+            $output
+        );
 
-        // Fetch and prepare Contacts documents
-        $contacts = $this->entityManager->getRepository(Contacts::class)->findAll();
+        $output->writeln('Indexing documents into Elasticsearch using Bulk API...');
 
-        $output->writeln('');
-        $output->writeln(count($contacts) . " contacts found...");
+        // Index documents into Elasticsearch using Bulk API
+        if (!empty($documents)) {
+            $bulkParams = ['body' => []];
 
-        foreach ($contacts as $contact) {
-            $content = implode("', '", [
-                $contact->getName(),
-                $contact->getSurname(),
-                $contact->getEmail(),
-                $contact->getPhone()
-            ]);
+            foreach ($documents as $document) {
+                $bulkParams['body'][] = [
+                    'index' => [
+                        '_index' => $document['index'],
+                        // '_id' => optional, if you want to set a specific ID
+                    ]
+                ];
+                $bulkParams['body'][] = $document['body'];
+            }
 
-            // Process the concatenated content
-            $entities = $this->nlpProcessorService->processText($content);
+            try {
+                $response = $this->client->bulk($bulkParams);
 
-            $documents[] = [
-                'index' => 'contacts',
-                'body' => [
-                    'name' => $contact->getName(),
-                    'surname' => $contact->getSurname(),
-                    'email' => $contact->getEmail(),
-                    'phone' => $contact->getPhone(),
-                    'entities' => $entities,
-                ]
-            ];
-        }
+                if ($response['errors']) {
+                    foreach ($response['items'] as $item) {
+                        if (isset($item['index']['error'])) {
+                            $error = $item['index']['error'];
+                            $output->writeln("<error>Error indexing document in {$item['index']['_index']}: {$error['type']} - {$error['reason']}</error>");
+                        }
+                    }
+                    $output->writeln("<error>Some documents failed to index. Please check the errors above.</error>");
+                } else {
+                    $output->writeln("<info>All documents indexed successfully using Bulk API.</info>");
+                }
 
-        // EMAILS
-        $output->writeln('Emails...');
-        $emails = $this->entityManager->getRepository(Emails::class)->findAll();
-        $output->writeln(count($emails) . " emails found...");
-
-        foreach ($emails as $email) {
-            $content = implode("', '", [
-                'sender' => $email->getSender(),
-                'receiver' => $email->getReceiver(),
-                'subject' => $email->getSubject(),
-                'message' => $email->getMessage(),
-            ]);
-
-            $entities = $this->nlpProcessorService->processText($content);
-            $documents[] = [
-                'index' => 'emails',
-                'body' => [
-                    'sender' => $email->getSender(),
-                    'receiver' => $email->getReceiver(),
-                    'subject' => $email->getSubject(),
-                    'message' => $email->getMessage(),
-                    'entities' => $entities,
-                ]
-            ];
-        }
-
-        // EVENTS
-        $output->writeln('Events...');
-        $events = $this->entityManager->getRepository(Events::class)->findAll();
-        $output->writeln(count($events) . " events found...");
-
-        foreach ($events as $event) {
-            $content = implode("', '", [
-                'title' => $event->getTitle(),
-                'subtitle' => $event->getSubtitle(),
-                'note' => $event->getNote(),
-            ]);
-
-            $entities = $this->nlpProcessorService->processText($content);
-            $documents[] = [
-                'index' => 'events',
-                'body' => [
-                    'title' => $event->getTitle(),
-                    'subtitle' => $event->getSubtitle(),
-                    'note' => $event->getNote(),
-                    'entities' => $entities,
-                ]
-            ];
-        }
-
-        // MESSAGES
-        $output->writeln('Messages...');
-        $messages = $this->entityManager->getRepository(Messages::class)->findAll();
-        $output->writeln(count($messages) . " messages found...");
-
-        foreach ($messages as $message) {
-            $content = implode("', '", [
-                'sender' => $message->getSender(),
-                'message' => $message->getMessage(),
-                'receiver' => $message->getReceiver(),
-            ]);
-
-            $entities = $this->nlpProcessorService->processText($content);
-            $documents[] = [
-                'index' => 'messages',
-                'body' => [
-                    'sender' => $message->getSender(),
-                    'message' => $message->getMessage(),
-                    'receiver' => $message->getReceiver(),
-                    'entities' => $entities,
-                ]
-            ];
-        }
-
-        // NOTES
-        $output->writeln('Notes...');
-        $notes = $this->entityManager->getRepository(Notes::class)->findAll();
-        $output->writeln(count($notes) . " notes found...");
-
-        foreach ($notes as $note) {
-            $content = implode("', '", [
-                'note' => $note->getNote(),
-            ]);
-
-            $entities = $this->nlpProcessorService->processText($content);
-            $documents[] = [
-                'index' => 'notes',
-                'body' => [
-                    'note' => $note->getNote(),
-                    'entities' => $entities,
-                ]
-            ];
-        }
-
-        $output->writeln('Indexing documents into Elasticsearch...');
-
-        // Index documents into Elasticsearch
-        foreach ($documents as $document) {
-            $params = [
-                'index' => $document['index'],
-                'body'  => $document['body']
-            ];
-            $this->client->index($params);
+                // Refresh indices to make documents searchable immediately
+                foreach ($indices as $index) {
+                    $this->client->indices()->refresh(['index' => $index]);
+                }
+            } catch (\Exception $e) {
+                $output->writeln("<error>Bulk indexing failed: {$e->getMessage()}</error>");
+                return Command::FAILURE;
+            }
+        } else {
+            $output->writeln("<comment>No documents to index.</comment>");
         }
 
         $output->writeln('');
         $output->writeln('<info>Done!</info>');
 
         return Command::SUCCESS;
+    }
+
+    /**
+     * Processes entities of a given type and appends documents to the provided array.
+     *
+     * @param string $entityClass The fully qualified class name of the entity.
+     * @param string $indexName The Elasticsearch index name.
+     * @param array $fields The fields to include in the document body.
+     * @param array $contentFields The fields to concatenate for NLP processing.
+     * @param array  &$documents Reference to the documents array to append to.
+     * @param OutputInterface $output The console output interface for logging.
+     *
+     * @return void
+     * @throws \JsonException
+     */
+    private function processEntities(
+        string $entityClass,
+        string $indexName,
+        array $fields,
+        array $contentFields,
+        array &$documents,
+        OutputInterface $output
+    ): void {
+        $entities = $this->entityManager->getRepository($entityClass)->findAll();
+        $entityCount = count($entities);
+        $output->writeln("{$entityCount} {$indexName} found...");
+
+        foreach ($entities as $entity) {
+            // Prepare content for NLP processing
+            $contentParts = [];
+            foreach ($contentFields as $field) {
+                $getter = 'get' . ucfirst($field);
+                if (method_exists($entity, $getter)) {
+                    $value = $entity->$getter();
+                    // Handle potential null values
+                    $contentParts[] = $value ?? '';
+                } else {
+                    $output->writeln("<error>Method {$getter} does not exist in " . get_class($entity) . "</error>");
+                    $contentParts[] = '';
+                }
+            }
+            $content = implode(" ', ' ", $contentParts);
+
+            // Process the concatenated content
+            $processedEntities = $this->nlpProcessorService->processText($content);
+
+            // Build the document body
+            $body = [];
+            foreach ($fields as $field) {
+                $getter = 'get' . ucfirst($field);
+                if (method_exists($entity, $getter)) {
+                    $body[$field] = $entity->$getter();
+                } else {
+                    $output->writeln("<error>Method {$getter} does not exist in " . get_class($entity) . "</error>");
+                    $body[$field] = null;
+                }
+            }
+            $body['entities'] = $processedEntities;
+
+            $documents[] = [
+                'index' => $indexName,
+                'body'  => $body
+            ];
+        }
     }
 }
