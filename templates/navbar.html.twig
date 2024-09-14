@@ -33,6 +33,7 @@
         role="button"
         aria-current="page"
     >Messages</a>
+
     <a
         id="notes"
         class="btn {% if table_id == 4 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
@@ -47,4 +48,53 @@
         role="button"
         aria-current="page"
     >Events</a>
+    <a
+        id="reminders"
+        class="btn {% if table_id == 6 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 6}) }}"
+        role="button"
+        aria-current="page"
+    >Reminders</a>
+    <a
+        id="calendar"
+        class="btn {% if table_id == 7 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 7}) }}"
+        role="button"
+        aria-current="page"
+    >Calendar</a>
+    <a
+        id="tasks"
+        class="btn {% if table_id == 8 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 8}) }}"
+        role="button"
+        aria-current="page"
+    >Tasks</a>
+    <a
+        id="notifications"
+        class="btn {% if table_id == 9 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 9}) }}"
+        role="button"
+        aria-current="page"
+    >Notifications</a>
+    <a
+        id="locations"
+        class="btn {% if table_id == 10 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 10}) }}"
+        role="button"
+        aria-current="page"
+    >Locations</a>
+    <a
+        id="files_documents"
+        class="btn {% if table_id == 11 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 11}) }}"
+        role="button"
+        aria-current="page"
+    >Files & Documents</a>
+    <a
+        id="search_history"
+        class="btn {% if table_id == 12 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 12}) }}"
+        role="button"
+        aria-current="page"
+    >Search History</a>
 </header>
