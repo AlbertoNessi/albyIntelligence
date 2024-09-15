@@ -2,11 +2,17 @@
 
 namespace App\Command;
 
+use App\Entity\CalendarEvents;
 use App\Entity\Contacts;
 use App\Entity\Emails;
 use App\Entity\Events;
+use App\Entity\Locations;
 use App\Entity\Messages;
 use App\Entity\Notes;
+use App\Entity\Notifications;
+use App\Entity\Reminders;
+use App\Entity\SearchHistory;
+use App\Entity\Tasks;
 use Elastic\Elasticsearch\ClientBuilder;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -41,7 +47,20 @@ class IndexDocumentsCommand extends Command
         $output->writeln('<info>Fetching and preparing documents...</info>');
 
         // List of indices to delete and reindex
-        $indices = ['contacts', 'emails', 'events', 'messages', 'notes'];
+        $indices = [
+            'contacts',
+            'emails',
+            'events',
+            'messages',
+            'notes',
+            'reminders',
+            /*'calendar_events',*/
+            'tasks',
+            /*'notifications',*/
+            'locations',
+            /*'files',*/
+            /*'search_history'*/
+        ];
 
         // Delete existing indices
         foreach ($indices as $index) {
@@ -97,6 +116,60 @@ class IndexDocumentsCommand extends Command
             'notes',
             ['note'],
             ['note'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            Reminders::class,
+            'reminders',
+            ['dueDate', 'priority', 'task'],
+            ['dueDate', 'priority', 'task'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            CalendarEvents::class,
+            'calendar_events',
+            ['title', 'description', 'eventDate'],
+            ['title', 'description', 'eventDate'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            Tasks::class,
+            'tasks',
+            ['name', 'dueDate', 'priority', 'status'],
+            ['name', 'dueDate', 'priority', 'status'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            Notifications::class,
+            'notifications',
+            ['message', 'flagRead', 'action'],
+            ['message', 'flagRead', 'action'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            Locations::class,
+            'locations',
+            ['name', 'address', 'city', 'province', 'region'],
+            ['name', 'address', 'city', 'province', 'region'],
+            $documents,
+            $output
+        );
+
+        $this->processEntities(
+            SearchHistory::class,
+            'search_history',
+            ['query', 'searchedAt', 'city', 'province', 'region'],
+            ['name', 'address', 'city', 'province', 'region'],
             $documents,
             $output
         );
@@ -175,6 +248,12 @@ class IndexDocumentsCommand extends Command
         $entityCount = count($entities);
         $output->writeln("{$entityCount} {$indexName} found...");
 
+        // Prevent index creation if no entities are found
+        if ($entityCount === 0) {
+            $output->writeln("<comment>No entities found for {$indexName}. Skipping index creation.</comment>");
+            return;
+        }
+
         foreach ($entities as $entity) {
             // Prepare content for NLP processing
             $contentParts = [];
@@ -182,7 +261,10 @@ class IndexDocumentsCommand extends Command
                 $getter = 'get' . ucfirst($field);
                 if (method_exists($entity, $getter)) {
                     $value = $entity->$getter();
-                    // Handle potential null values
+                    // Handle potential null values and DateTimeInterface
+                    if ($value instanceof \DateTimeInterface) {
+                        $value = $value->format('Y-m-d H:i:s');
+                    }
                     $contentParts[] = $value ?? '';
                 } else {
                     $output->writeln("<error>Method {$getter} does not exist in " . get_class($entity) . "</error>");
@@ -199,7 +281,12 @@ class IndexDocumentsCommand extends Command
             foreach ($fields as $field) {
                 $getter = 'get' . ucfirst($field);
                 if (method_exists($entity, $getter)) {
-                    $body[$field] = $entity->$getter();
+                    $value = $entity->$getter();
+                    // Convert DateTimeInterface to string if necessary
+                    if ($value instanceof \DateTimeInterface) {
+                        $value = $value->format('Y-m-d H:i:s');
+                    }
+                    $body[$field] = $value;
                 } else {
                     $output->writeln("<error>Method {$getter} does not exist in " . get_class($entity) . "</error>");
                     $body[$field] = null;

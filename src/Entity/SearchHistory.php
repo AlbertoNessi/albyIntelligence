@@ -20,9 +20,6 @@ class SearchHistory
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $searchedAt = null;
 
-    #[ORM\Column(length: 10, nullable: true)]
-    private ?string $user = null;
-
     public function getId(): ?int
     {
         return $this->id;
@@ -52,15 +49,5 @@ class SearchHistory
         return $this;
     }
 
-    public function getUser(): ?string
-    {
-        return $this->user;
-    }
 
-    public function setUser(?string $user): static
-    {
-        $this->user = $user;
-
-        return $this;
-    }
 }

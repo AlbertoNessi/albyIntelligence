@@ -17,11 +17,15 @@
                             <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Vai</button>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div id="responseContainer"></div>
+                    </div>
                     <div class="row mt-5">
                         <div class="col-6">
-                            <div class="card">
+                            <div class="card border-success">
+                                <div class="card-header">Esempi funzionanti</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">Esempi funzionanti</h5>
                                     <ul>
                                         <li>When are we having dad's birthday party?</li>
                                         <li>Where are we having dad's birthday party?</li>
@@ -35,9 +39,9 @@
                             </div>
                         </div>
                         <div class="col-6">
-                            <div class="card">
+                            <div class="card border-warning">
+                                <div class="card-header">Esempi extra contesto</div>
                                 <div class="card-body">
-                                    <h5 class="card-title">Esempi non funzionanti</h5>
                                     <ul>
                                         <li>what is the capital of france?</li>
                                         <li>what is 100 + 1.9?</li>
@@ -45,11 +49,8 @@
                                     </ul>
                                 </div>
                             </div>
-                        <div>
-                    </div>
-                    <div class="row">
-                        <div id="responseContainer"></div>
-                    </div>
+                            <div>
+                            </div>
                 </form>
             </div>
         </div>
@@ -143,9 +144,9 @@
 
         function showResponse(responseData) {
             let responseHtml = `
-            <div class="card mt-3">
-                <div class="card-body">
-                    <h5 class="card-title">Response</h5>`;
+            <div class="card mt-3 text-bg-success">
+                <div class="card-header">Response</div>
+                <div class="card-body">`;
 
             if (typeof responseData === 'object' && responseData !== null) {
                 if (Array.isArray(responseData)) {
@@ -169,16 +170,16 @@
                         }).join('');
 
                         responseHtml += `
-                        <table class="table table-striped">
-                            <thead>
-                                <tr>
-                                    ${tableHeaders}
-                                </tr>
-                            </thead>
-                            <tbody>
-                                ${tableRows}
-                            </tbody>
-                        </table>`;
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        ${tableHeaders}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${tableRows}
+                                </tbody>
+                            </table>`;
                     }
                 } else {
                     // Handle single object (e.g., a specific contact)
