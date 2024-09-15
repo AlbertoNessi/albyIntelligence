@@ -10,12 +10,13 @@
                     {% for column in columns %}
                         {% if column != 'id' %}
                             {% set type = "text" %}
-                            {% if column == 'date' %}
+
+                            {% if column matches '/date/i' %}
                                 {% set type = "date" %}
                             {% endif %}
 
                             <div class="mb-3">
-                                <label for="{{ column }}" class="col-form-label">{{ column }}</label>
+                                <label for="{{ column }}" class="col-form-label">{{ column|capitalize }}</label>
                                 <input type="{{ type }}" class="form-control" id="{{ column }}" name="{{ column }}" />
                             </div>
                         {% endif %}

@@ -2,11 +2,6 @@
 
 namespace App\Controller;
 
-use App\Entity\Contacts;
-use App\Entity\Emails;
-use App\Entity\Events;
-use App\Entity\Messages;
-use App\Entity\Notes;
 use App\Services\EntityFactoryService;
 use App\Services\EntityPersistenceService;
 use App\Services\GetTableDataService;
@@ -47,8 +42,6 @@ class ListController extends AbstractController
     {
         $parameters = $requestHandlerService->getParametersFromRequest($request);
         $entityClass = $getTableDataService->getEntityNameByTableId($parameters['table_id']);
-        /*$entityClass = $parameters['entityClass'];
-        unset($parameters['entityClass']); // Remove entityClass from parameters*/
 
         try {
             $newRow = $entityFactoryService->createEntity($entityClass, $parameters);

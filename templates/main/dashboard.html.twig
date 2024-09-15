@@ -14,21 +14,38 @@
                     </div>
                     <div class="row">
                         <div class="text-end">
-                            <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Send</button>
+                            <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Vai</button>
                         </div>
                     </div>
-                    <div class="row">
-                        <small>When are we having dad's birthday party?</small>
-                        <small>Where are we having dad's birthday party?</small>
-                        <small>Show all the data of the contacts</small>
-                        <small>Show all the data of the contact named Marta Bellini</small>
-                        <small>what is the name of the contact with email marta.bellini@gmail.com?</small>
-                        <small>Show the name of the contacts that have gmail as their email provider</small>
-                        <br>
-                        <br>
-                        <small>what is the capital of france?</small>
-                        <small>what is 100 + 1.9?</small>
-                        <small>What is the largest number? 1.1 or 1.9?</small>
+                    <div class="row mt-5">
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Esempi funzionanti</h5>
+                                    <ul>
+                                        <li>When are we having dad's birthday party?</li>
+                                        <li>Where are we having dad's birthday party?</li>
+                                        <li>Show all the data of the contacts</li>
+                                        <li>Show all the data of the contact named Marta Bellini</li>
+                                        <li>what is the name of the contact with email marta.bellini@gmail.com?</li>
+                                        <li>Show the name of the contacts that have gmail as their email provider</li>
+                                    </ul>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Esempi non funzionanti</h5>
+                                    <ul>
+                                        <li>what is the capital of france?</li>
+                                        <li>what is 100 + 1.9?</li>
+                                        <li>What is the largest number? 1.1 or 1.9?</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        <div>
                     </div>
                     <div class="row">
                         <div id="responseContainer"></div>
@@ -63,8 +80,6 @@
                 contentType: 'application/json',
                 data: JSON.stringify({ message: message }),
                 success: function(response) {
-                    console.log('Server Response:', response); // For debugging purposes
-
                     let responseData;
 
                     // Check if 'choices' exists and is an array

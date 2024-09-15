@@ -20,17 +20,14 @@ class Locations
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $address = null;
 
-    #[ORM\Column(nullable: true)]
-    private ?float $latitude = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?float $longitude = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $savedAt = null;
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $city = null;
 
     #[ORM\Column(length: 10, nullable: true)]
-    private ?string $user = null;
+    private ?string $province = null;
+
+    #[ORM\Column(length: 10, nullable: true)]
+    private ?string $region = null;
 
     public function getId(): ?int
     {
@@ -61,51 +58,44 @@ class Locations
         return $this;
     }
 
-    public function getLatitude(): ?float
+    public function getCity(): ?string
     {
-        return $this->latitude;
+        return $this->city;
     }
 
-    public function setLatitude(?float $latitude): static
+    public function setCity(?string $city): static
     {
-        $this->latitude = $latitude;
+        $this->city = $city;
 
         return $this;
     }
 
-    public function getLongitude(): ?float
+    public function getProvince(): ?string
     {
-        return $this->longitude;
+        return $this->province;
     }
 
-    public function setLongitude(?float $longitude): static
+    public function setProvince(?string $province): static
     {
-        $this->longitude = $longitude;
+        $this->province = $province;
 
         return $this;
     }
 
-    public function getSavedAt(): ?\DateTimeInterface
+    public function getRegion(): ?string
     {
-        return $this->savedAt;
+        return $this->region;
     }
 
-    public function setSavedAt(?\DateTimeInterface $savedAt): static
+    public function setRegion(?string $region): static
     {
-        $this->savedAt = $savedAt;
+        $this->region = $region;
 
         return $this;
     }
 
-    public function getUser(): ?string
-    {
-        return $this->user;
-    }
 
-    public function setUser(?string $user): static
-    {
-        $this->user = $user;
 
-        return $this;
-    }
+
+
 }
