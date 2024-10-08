@@ -67,31 +67,35 @@ class SearchController extends AbstractController
 
             $results = $elasticSearchService->search($indicesAndFields, $parameters['message'], $queryType);
 
-            if (!$results) {
+            if ($results['code'] === 'ERROR') {
                 return new JsonResponse(['error' => "Nessun dato disponibile"]);
             }
 
             // Prepare the dataText string
             $dataText = '';
-            foreach ($results as $result) {
-                $dataText .= "Document Data:\n";
-                foreach ($result['_source'] as $field => $value) {
-                    if (is_array($value)) {
-                        $dataText .= ucfirst(str_replace('_', ' ', $field)) . ":\n";
-                        foreach ($value as $subValue) {
-                            if (is_array($subValue)) {
-                                foreach ($subValue as $subFieldValue) {
-                                    $dataText .= "  - " . $subFieldValue . "\n";
+            foreach ($results['message'] as $result) {
+                if (isset($result['_source'])) {
+                    $dataText .= "Document Data:\n";
+                    foreach ($result['_source'] as $field => $value) {
+                        if (is_array($value)) {
+                            $dataText .= ucfirst(str_replace('_', ' ', $field)) . ":\n";
+                            foreach ($value as $subValue) {
+                                if (is_array($subValue)) {
+                                    foreach ($subValue as $subFieldValue) {
+                                        $dataText .= "  - " . $subFieldValue . "\n";
+                                    }
+                                } else {
+                                    $dataText .= "  - " . $subValue . "\n";
                                 }
-                            } else {
-                                $dataText .= "  - " . $subValue . "\n";
                             }
+                        } else {
+                            $dataText .= ucfirst(str_replace('_', ' ', $field)) . ": " . $value . "\n";
                         }
-                    } else {
-                        $dataText .= ucfirst(str_replace('_', ' ', $field)) . ": " . $value . "\n";
                     }
+                    $dataText .= "\n";
+                } else {
+                    $dataText .= "No source data available for this document.\n";
                 }
-                $dataText .= "\n";
             }
 
             $prompt = $aiPromptResponseService->generateAIPromptResponse($parameters['message'], $dataText);

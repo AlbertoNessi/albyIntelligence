@@ -1,56 +1,32 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-    <div class="container-fluid mt-5">
+    <div class="container-fluid mt-5" style="height: 400px">
         <div class="row">
             <div class="col-2"></div>
             <div class="col-8 px-md-4">
                 <form>
                     <div class="row">
                         <div class="form-floating mx-auto p-2">
-                            <textarea class="form-control" placeholder="Chiedi quello che vuoi" id="userMessage"></textarea>
-                            <label for="userMessage">How can I help you? You can ask me about your contacts, emails, messages and more...</label>
+                            <div class="input-group">
+                                <textarea class="form-control" placeholder="Ask me anything" id="userMessage"></textarea>
+                            </div>
+                            <label for="userMessage"></label>
                         </div>
                     </div>
                     <div class="row">
                         <div class="text-end">
-                            <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Vai</button>
+                            <button type="submit" class="btn btn-dark" id="sendUserMessageBtn">Send</button>
+                            <button type="button" class="btn btn-dark" id="startVoiceInputBtn">🎤 Record Voice</button>
                         </div>
                     </div>
 
                     <div class="row">
-                        <div id="responseContainer"></div>
-                    </div>
-                    <div class="row mt-5">
-                        <div class="col-6">
-                            <div class="card border-success">
-                                <div class="card-header">Esempi funzionanti</div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>When are we having dad's birthday party?</li>
-                                        <li>Where are we having dad's birthday party?</li>
-                                        <li>Show all the data of the contacts</li>
-                                        <li>Show all the data of the contact named Marta Bellini</li>
-                                        <li>what is the name of the contact with email marta.bellini@gmail.com?</li>
-                                        <li>Show the name of the contacts that have gmail as their email provider</li>
-                                    </ul>
-
-                                </div>
-                            </div>
+                        <div id="responseContainer">
+                            <canvas id="responseCanvas" width="800" height="600"></canvas>
                         </div>
-                        <div class="col-6">
-                            <div class="card border-warning">
-                                <div class="card-header">Esempi extra contesto</div>
-                                <div class="card-body">
-                                    <ul>
-                                        <li>what is the capital of france?</li>
-                                        <li>what is 100 + 1.9?</li>
-                                        <li>What is the largest number? 1.1 or 1.9?</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div>
-                            </div>
+                    </div>
+                    <div id="alertContainer"></div>
                 </form>
             </div>
         </div>
@@ -59,6 +35,43 @@
 
 {% block js %}
     <script>
+        // Voice Input Functionality
+        let recognition;
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.continuous = false;
+            recognition.interimResults = false;
+
+            $('#startVoiceInputBtn').on('click', function() {
+                recognition.start();
+                console.log("recognition start");
+            });
+
+            recognition.onresult = function(event) {
+                console.log("onresult");
+                const transcript = event.results[0][0].transcript;
+
+                console.log("transcript: " + transcript);
+                $('#userMessage').val(transcript);
+
+                $('#sendUserMessageBtn').click();
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                showAlert('Speech recognition error: ' + event.error, 'danger');
+            };
+
+            recognition.onend = function() {
+                console.log('Speech recognition ended');
+            };
+        } else {
+            $('#startVoiceInputBtn').prop('disabled', true);
+            showAlert('Speech recognition not supported in this browser.', 'warning');
+        }
+
         // Event listener for the send button
         $('#sendUserMessageBtn').on('click', function(event) {
             event.preventDefault();
@@ -83,35 +96,27 @@
                 success: function(response) {
                     let responseData;
 
-                    // Check if 'choices' exists and is an array
                     if (response['choices'] && Array.isArray(response['choices'])) {
                         try {
-                            // Attempt to parse the 'content' field as JSON
                             responseData = JSON.parse(response['choices'][0]['message']['content']);
-                            console.log('Parsed Content:', responseData);
 
                             if (responseData['result']) {
                                 showResponse(responseData['result']);
                             } else {
-                                // If 'result' is not present, display an appropriate message
                                 let errorMessage = responseData['error'] || "No result found.";
                                 showResponse(errorMessage);
                             }
                         } catch (e) {
                             console.error('JSON Parsing Error:', e);
-                            // If parsing fails, treat 'content' as a simple string
                             let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
                             showResponse(fallbackResponse);
                         }
                     } else if (response['result']) {
-                        // Handle cases where 'result' is directly in the response
                         showResponse(response['result']);
                     } else if (response['error']) {
-                        // Handle error messages
                         showResponse(`<strong>Error:</strong> ${escapeHtml(response['error'])}`);
                     } else {
-                        // Handle unexpected response structures
-                        showResponse("Nessun dato disponibile.");
+                        showResponse("No data available.");
                     }
                 },
                 error: function(xhr, status, error) {
@@ -119,10 +124,8 @@
                     showAlert('Error! Failed to send data.', 'danger');
                 },
                 complete: function() {
-                    // Re-enable the send button and reset its text
                     $('#sendUserMessageBtn').prop('disabled', false).text('Send');
-                    $('#loadingSpinner').hide(); // Hide the loading spinner
-                    // Clear the textarea after request completion
+                    $('#loadingSpinner').hide();
                     $('#userMessage').val('');
                 }
             });
@@ -150,14 +153,10 @@
 
             if (typeof responseData === 'object' && responseData !== null) {
                 if (Array.isArray(responseData)) {
-                    // Handle array of objects (e.g., multiple contacts)
                     if (responseData.length === 0) {
-                        responseHtml += `<p class="card-text">Nessun dato disponibile.</p>`;
+                        responseHtml += `<p class="card-text">No data available.</p>`;
                     } else {
-                        // Dynamically generate table headers based on the keys of the first object
                         let tableHeaders = Object.keys(responseData[0]).map(key => `<th>${escapeHtml(capitalizeFirstLetter(key))}</th>`).join('');
-
-                        // Dynamically generate table rows
                         let tableRows = responseData.map(item => {
                             let row = '<tr>';
                             for (let key in item) {
@@ -182,7 +181,6 @@
                             </table>`;
                     }
                 } else {
-                    // Handle single object (e.g., a specific contact)
                     responseHtml += '<table class="table table-bordered">';
                     responseHtml += '<thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
 
@@ -199,7 +197,6 @@
                     responseHtml += '</tbody></table>';
                 }
             } else {
-                // Display string responses as plain text
                 responseHtml += `<p class="card-text">${escapeHtml(responseData)}</p>`;
             }
 
@@ -207,16 +204,15 @@
                 </div>
             </div>`;
 
-            // Append the response to the container
             $("#responseContainer").html(responseHtml);
         }
 
         function showAlert(message, type) {
-            let alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${escapeHtml(message)}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>`;
+            let alertHtml =
+                `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    ${escapeHtml(message)}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`;
             $("#alertContainer").html(alertHtml);
 
             setTimeout(function() {
@@ -225,4 +221,3 @@
         }
     </script>
 {% endblock %}
-

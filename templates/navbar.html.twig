@@ -1,6 +1,8 @@
 <div class="d-flex justify-content-center py-3">
     <h1 class="text-center fw-bold">Welcome in Alby Intelligence</h1>
 </div>
+<button class="btn btn-primary mx-4 my-4" style="top: 0; right: 0; position: absolute" id="updateIndexBtn">Update index</button>
+
 <div class="text-center">
     <h6>A simple project to mimic Apple Intelligence with Symfony and the ChatGPT API</h6>
 </div>
@@ -86,7 +88,7 @@
     <a
         id="files_documents"
         class="btn {% if table_id == 11 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
-        href="{{ path('list_url', {id: 11}) }}"
+        href="{{ path('listFile_url', {id: 11}) }}"
         role="button"
         aria-current="page"
     >Files & Documents</a>

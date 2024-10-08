@@ -1,0 +1,21 @@
+<div class="modal fade" id="addNewFileModal" tabindex="-1" aria-labelledby="addNewFileModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="addNewFileModalLabel">New file</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNewRowForm">
+                    <label for="file" class="form-control-label">File</label>
+                    <input type="file" class="form-control" name="file" id="file" />
+                </form>
+            </div>
+            <div id="liveAlertPlaceholder"></div>
+            <div class="modal-footer d-flex justify-content-between">
+                <button type="button" class="btn btn-outline-secondary text-left" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" id="saveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+</div>

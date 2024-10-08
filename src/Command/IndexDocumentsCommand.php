@@ -19,7 +19,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Doctrine\ORM\EntityManagerInterface;
-use App\Services\NLPProcessor;
+use App\Services\NLPProcessorService;
 
 #[AsCommand(
     name: 'ai:gpt:indexDocuments',
@@ -28,10 +28,10 @@ use App\Services\NLPProcessor;
 class IndexDocumentsCommand extends Command
 {
     private EntityManagerInterface $entityManager;
-    private NLPProcessor $nlpProcessorService;
+    private NLPProcessorService $nlpProcessorService;
     private \Elastic\Elasticsearch\Client $client;
 
-    public function __construct(EntityManagerInterface $entityManager, NLPProcessor $nlpProcessorService)
+    public function __construct(EntityManagerInterface $entityManager, NLPProcessorService $nlpProcessorService)
     {
         $this->entityManager = $entityManager;
         $this->nlpProcessorService = $nlpProcessorService;
@@ -273,10 +273,8 @@ class IndexDocumentsCommand extends Command
             }
             $content = implode(" ', ' ", $contentParts);
 
-            // Process the concatenated content
             $processedEntities = $this->nlpProcessorService->processText($content);
 
-            // Build the document body
             $body = [];
             foreach ($fields as $field) {
                 $getter = 'get' . ucfirst($field);

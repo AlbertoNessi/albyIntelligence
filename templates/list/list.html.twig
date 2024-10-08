@@ -73,15 +73,9 @@
                 contentType: 'application/json',
                 data: JSON.stringify(dataObject),
                 success: function(response) {
-                    /*console.log("response");
-                    console.log(response);*/
                     showAlert('Success! Data sent successfully.', 'success');
                 },
                 error: function(xhr, status, error) {
-                    /*console.log("xhr, status, error");
-                    console.log(xhr);
-                    console.log(status);
-                    console.log(error);*/
                     showAlert('Error! Failed to send data.', 'danger');
                 },
                 complete: function() {

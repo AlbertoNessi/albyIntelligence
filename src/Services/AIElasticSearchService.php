@@ -4,6 +4,8 @@ namespace App\Services;
 
 use Elastic\Elasticsearch\Client;
 use Elastic\Elasticsearch\ClientBuilder;
+use Elastic\Elasticsearch\Exception\ClientResponseException;
+use Elastic\Elasticsearch\Exception\ServerResponseException;
 
 class AIElasticSearchService
 {
@@ -56,9 +58,18 @@ class AIElasticSearchService
             throw new \InvalidArgumentException("Unsupported query type: {$queryType}");
         }
 
-        $response = $this->client->search($params);
+        try {
+            $response = $this->client->search($params);
 
-        // Return the search hits
-        return $response['hits']['hits'] ?? [];
+            return [
+                'code' => 'OK',
+                'message' => $response['hits']['hits'] ?? []
+            ];
+        } catch (ClientResponseException|ServerResponseException $e) {
+            return [
+                'code' => 'ERROR',
+                'message' => 'Si è verificato un errore: ' . $e->getMessage() . " on line: " . $e->getLine()
+            ];
+        }
     }
 }
