@@ -26,6 +26,7 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Services\SemanticIndexService;
+use Symfony\Component\HttpFoundation\Request;
 
 class IndexDocumentsController extends AbstractController
 {
@@ -34,9 +35,19 @@ class IndexDocumentsController extends AbstractController
      * @throws Exception
      */
     #[Route('/indexDocuments', name: 'indexDocuments_url')]
-    public function indexDocuments(SemanticIndexService $semanticIndexService, LoggerInterface $logger): JsonResponse|int
+    public function indexDocuments(SemanticIndexService $semanticIndexService, LoggerInterface $logger, Request $request): JsonResponse|int
     {
-        ini_set('max_execution_time', 120);
+        ini_set('max_execution_time', 240);
+
+        // Validate CSRF token
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('update_index', $token)) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Invalid CSRF token.'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $client = ClientBuilder::create()->setHosts(['http://elasticsearch:9200'])->build();
 
         $documents = [];
@@ -71,15 +82,6 @@ class IndexDocumentsController extends AbstractController
         }
 
         try {
-            $semanticIndexService->processEntities(
-                Contacts::class,
-                'contacts',
-                ['name', 'surname', 'email', 'phone'],
-                ['name', 'surname', 'email', 'phone'],
-                $documents,
-            );
-
-            // Process each entity type and collect documents
             $semanticIndexService->processEntities(
                 Contacts::class,
                 'contacts',
@@ -129,26 +131,10 @@ class IndexDocumentsController extends AbstractController
             );
 
             $semanticIndexService->processEntities(
-                CalendarEvents::class,
-                'calendar_events',
-                ['title', 'description', 'eventDate'],
-                ['title', 'description', 'eventDate'],
-                $documents
-            );
-
-            $semanticIndexService->processEntities(
                 Tasks::class,
                 'tasks',
                 ['name', 'dueDate', 'priority', 'status'],
                 ['name', 'dueDate', 'priority', 'status'],
-                $documents
-            );
-
-            $semanticIndexService->processEntities(
-                Notifications::class,
-                'notifications',
-                ['message', 'flagRead', 'action'],
-                ['message', 'flagRead', 'action'],
                 $documents
             );
 
@@ -160,17 +146,7 @@ class IndexDocumentsController extends AbstractController
                 $documents
             );
 
-            $semanticIndexService->processEntities(
-                SearchHistory::class,
-                'search_history',
-                ['query', 'searchedAt', 'city', 'province', 'region'],
-                ['name', 'address', 'city', 'province', 'region'],
-                $documents
-            );
-
-
             $logger->info('Indexing documents into Elasticsearch using Bulk API...');
-
 
             // Index documents into Elasticsearch using Bulk API
             if (!empty($documents)) {
@@ -208,7 +184,12 @@ class IndexDocumentsController extends AbstractController
                 } catch (\Exception $e) {
                     $logger->error('ERROR - Bulk indexing failed: ' . $e->getMessage());
 
-                    return Command::FAILURE;
+                    $response = [
+                        'code' => 'KO',
+                        'message' => $e->getMessage() . "on line: " . $e->getLine() . " trace: " . $e->getTraceAsString(),
+                    ];
+
+                    return new JsonResponse($response, Response::HTTP_OK);
                 }
             } else {
                 $logger->error('ERROR - No documents to index');

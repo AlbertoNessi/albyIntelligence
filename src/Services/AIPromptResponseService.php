@@ -21,9 +21,7 @@ class AIPromptResponseService
             - Calendar: Handle calendar events, including integration with external calendars.
             - Tasks: Manage tasks, including due dates, priorities, and statuses.
             - Notifications: Provide details about system or app notifications, including unread notifications and associated actions.
-            - Locations: Retrieve and manage location-based data, including saved locations and recent places.
             - Files and Documents: Handle files and documents stored within the system, including searching and retrieving files.
-            - Search History: Retrieve and manage the user's search history within the application for quick access to previous queries.
 
             Users may ask you to perform specific queries related to these entities using a semantic index.
             When responding to queries related to these entities, you must provide the response in JSON format.
