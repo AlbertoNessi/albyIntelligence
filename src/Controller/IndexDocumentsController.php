@@ -2,16 +2,13 @@
 
 namespace App\Controller;
 
-use App\Entity\CalendarEvents;
 use App\Entity\Contacts;
 use App\Entity\Emails;
 use App\Entity\Events;
 use App\Entity\Locations;
 use App\Entity\Messages;
 use App\Entity\Notes;
-use App\Entity\Notifications;
 use App\Entity\Reminders;
-use App\Entity\SearchHistory;
 use App\Entity\Tasks;
 use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Exception\AuthenticationException;
@@ -22,7 +19,6 @@ use Exception;
 use Symfony\Component\HttpFoundation\Response;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Services\SemanticIndexService;
@@ -39,49 +35,49 @@ class IndexDocumentsController extends AbstractController
     {
         ini_set('max_execution_time', 240);
 
-        // Validate CSRF token
-        $token = $request->request->get('_token');
-        if (!$this->isCsrfTokenValid('update_index', $token)) {
-            return new JsonResponse([
-                'status' => 'error',
-                'message' => 'Invalid CSRF token.'
-            ], Response::HTTP_FORBIDDEN);
-        }
-
-        $client = ClientBuilder::create()->setHosts(['http://elasticsearch:9200'])->build();
-
-        $documents = [];
-
-        // List of indices to delete and reindex
-        $indices = [
-            'contacts',
-            'emails',
-            'events',
-            'messages',
-            'notes',
-            'reminders',
-            'tasks',
-            'locations',
-        ];
-
-        // Delete existing indices
-        foreach ($indices as $index) {
-            try {
-                if ($semanticIndexService->checkIndexExistance($index)) {
-                    $response = $semanticIndexService->deleteExistingIndex($index);
-
-                    if ($response['acknowledged'] !== true) {
-                        $logger->error("Error during index delete");
-
-                            throw new \RuntimeException("Error on line: " . __LINE__, 500);
-                    }
-                }
-            } catch (ClientResponseException|MissingParameterException|ServerResponseException $e) {
-                return new JsonResponse("Error " . $e->getMessage() . " on line: " . $e->getLine(), 500);
-            }
-        }
-
         try {
+            // Validate CSRF token
+            $token = $request->request->get('_token');
+            if (!$this->isCsrfTokenValid('update_index', $token)) {
+                return new JsonResponse([
+                    'status' => 'error',
+                    'message' => 'Invalid CSRF token.'
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            $client = ClientBuilder::create()->setHosts(['http://elasticsearch:9200'])->build();
+
+            $documents = [];
+
+            // List of indices to delete and reindex
+            $indices = [
+                'contacts',
+                'emails',
+                'events',
+                'messages',
+                'notes',
+                'reminders',
+                'tasks',
+                'locations',
+            ];
+
+            // Delete existing indices
+            foreach ($indices as $index) {
+                try {
+                    if ($semanticIndexService->checkIndexExistance($index)) {
+                        $response = $semanticIndexService->deleteExistingIndex($index);
+
+                        if ($response['acknowledged'] !== true) {
+                            $logger->error("Error during index delete");
+
+                                throw new \RuntimeException("Error on line: " . __LINE__, 500);
+                        }
+                    }
+                } catch (ClientResponseException|MissingParameterException|ServerResponseException $e) {
+                    return new JsonResponse("Error " . $e->getMessage() . " on line: " . $e->getLine(), 500);
+                }
+            }
+
             $semanticIndexService->processEntities(
                 Contacts::class,
                 'contacts',

@@ -237,13 +237,15 @@
                         _token: "{{ csrf_token('update_index') }}"
                     },
                     success: function (response) {
-                        if (response.status === 'success') {
+                        console.log(response.code);
+                        if (response.code === 'success') {
                             showAlert("success", response.message);
                         } else {
                             showAlert("warning", response.message);
                         }
                     },
                     error: function (xhr, status, error) {
+                        console.log([xhr, status, error]);
                         showAlert("danger", "An error occurred: " + error);
                     }
                 });

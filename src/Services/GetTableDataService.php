@@ -12,7 +12,6 @@ use App\Entity\Messages;
 use App\Entity\Notes;
 use App\Entity\Notifications;
 use App\Entity\Reminders;
-use App\Entity\SearchHistory;
 use App\Entity\Tasks;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -59,8 +58,7 @@ class GetTableDataService
         8 => Tasks::class,
         9 => Notifications::class,
         10 => Locations::class,
-        11 => FileDocuments::class,
-        12 => SearchHistory::class,
+        11 => FileDocuments::class
     ];
 
     public function getColumnsByTableId(int $tableId): array

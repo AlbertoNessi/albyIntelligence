@@ -11,7 +11,6 @@ use App\Entity\Messages;
 use App\Entity\Notes;
 use App\Entity\Notifications;
 use App\Entity\Reminders;
-use App\Entity\SearchHistory;
 use App\Entity\Tasks;
 use Elastic\Elasticsearch\ClientBuilder;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -54,12 +53,8 @@ class IndexDocumentsCommand extends Command
             'messages',
             'notes',
             'reminders',
-            /*'calendar_events',*/
             'tasks',
-            /*'notifications',*/
             'locations',
-            /*'files',*/
-            /*'search_history'*/
         ];
 
         // Delete existing indices
@@ -160,15 +155,6 @@ class IndexDocumentsCommand extends Command
             Locations::class,
             'locations',
             ['name', 'address', 'city', 'province', 'region'],
-            ['name', 'address', 'city', 'province', 'region'],
-            $documents,
-            $output
-        );
-
-        $this->processEntities(
-            SearchHistory::class,
-            'search_history',
-            ['query', 'searchedAt', 'city', 'province', 'region'],
             ['name', 'address', 'city', 'province', 'region'],
             $documents,
             $output

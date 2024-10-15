@@ -32,6 +32,9 @@ services:
     image: mysql:${MYSQL_VERSION:-8}
     environment:
       MYSQL_DATABASE: ${MYSQL_DATABASE:-app}
+      MYSQL_RANDOM_ROOT_PASSWORD: "true"
+      MYSQL_ROOT_PASSWORD: "root_psw"
+      MYSQL_ALLOW_EMPTY_PASSWORD: false
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-root_psw}
       MYSQL_USER: ${MYSQL_USER:-app}
     healthcheck:
