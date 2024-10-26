@@ -70,7 +70,7 @@ class IndexDocumentsController extends AbstractController
                         if ($response['acknowledged'] !== true) {
                             $logger->error("Error during index delete");
 
-                                throw new \RuntimeException("Error on line: " . __LINE__, 500);
+                            throw new \RuntimeException("Error on line: " . __LINE__, 500);
                         }
                     }
                 } catch (ClientResponseException|MissingParameterException|ServerResponseException $e) {
@@ -165,7 +165,7 @@ class IndexDocumentsController extends AbstractController
                             if (isset($item['index']['error'])) {
                                 $error = $item['index']['error'];
 
-                                $logger->error('ERROR - Error indexing document in ' . $error . ": " . $error['type'] . " - " .  $error['reason']);
+                                $logger->error('ERROR - Error indexing document - Error type: ' . $error['type'] . " - Error reason: " .  $error['reason']);
                             }
                         }
                         $logger->error('ERROR - Some documents failed to index');
@@ -175,10 +175,12 @@ class IndexDocumentsController extends AbstractController
 
                     // Refresh indices to make documents searchable immediately
                     foreach ($indices as $index) {
-                        $client->indices()->refresh(['index' => $index]);
+                        if ($semanticIndexService->checkIndexExistance($index)) {
+                            $client->indices()->refresh(['index' => $index]);
+                        }
                     }
                 } catch (\Exception $e) {
-                    $logger->error('ERROR - Bulk indexing failed: ' . $e->getMessage());
+                    $logger->error("#" . $e->getLine() . " - FILE - " . $e->getFile() . ' - ERROR - Bulk indexing failed: ' . $e->getMessage() . " - TRACE - " . $e->getTraceAsString());
 
                     $response = [
                         'code' => 'KO',
@@ -202,10 +204,24 @@ class IndexDocumentsController extends AbstractController
         } catch (Exception $exception) {
             $response = [
                 'code' => 'ERROR',
-                'message' => 'Si è verificato un errore: ' . $exception->getMessage() . " on line: " . $exception->getLine()
+                'message' => 'Si è verificato un errore: ' . $exception->getMessage() . " on line: " . $exception->getLine() . " trace: " . $exception->getTraceAsString(),
             ];
 
             return new JsonResponse($response, Response::HTTP_OK);
         }
     }
+
+    // Temporary test route
+    #[Route('/test-elasticsearch', name: 'test_elasticsearch')]
+    public function testElasticsearch(): JsonResponse
+    {
+        try {
+            $client = ClientBuilder::create()->setHosts(['http://elasticsearch:9200'])->build();
+            $info = $client->info();
+            return new JsonResponse($info);
+        } catch (\Exception $e) {
+            return new JsonResponse(['error' => $e->getMessage()], 500);
+        }
+    }
+
 }

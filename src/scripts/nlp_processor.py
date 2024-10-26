@@ -2,34 +2,52 @@ import spacy
 import sys
 import json
 import re
+from typing import List, Tuple
 
-# Load Spacy model
-# Change to the medium model
-nlp = spacy.load('en_core_web_md')
-# Or use the large model
-# nlp = spacy.load('en_core_web_lg')
-# Or use the transformer model
-# nlp = spacy.load('en_core_web_trf')
+# Precompile regex patterns for efficiency
+ENTITY_PATTERNS: List[Tuple[re.Pattern, str]] = [
+    (re.compile(r'^\d+$'), 'CARDINAL'),
+    (re.compile(r'^\S+@\S+\.\S+$'), 'EMAIL'),
+    (re.compile(r'^\+?[0-9\s\-\(\)]+$'), 'PHONE'),
+    # Add more patterns as needed
+]
 
-def correct_entity_type(text, entity_label):
+def load_spacy_model(model_name: str = 'en_core_web_md') -> spacy.Language:
     """
-    Function to correct the entity label based on text patterns.
+    Load the specified Spacy model.
     """
-    if re.match(r'^\d+$', text):
-        return 'CARDINAL'
-    elif re.match(r'^\S+@\S+\.\S+$', text):
-        return 'EMAIL'
-    elif re.match(r'^\+?[0-9\s\-\(\)]+$', text):
-        return 'PHONE'
-    # Add more corrections as needed
+    try:
+        return spacy.load(model_name)
+    except OSError as e:
+        sys.stderr.write(f"Error loading Spacy model '{model_name}': {e}\n")
+        sys.exit(1)
+
+# Load Spacy model once
+nlp = load_spacy_model()
+
+def correct_entity_type(text: str, entity_label: str) -> str:
+    """
+    Correct the entity label based on predefined text patterns.
+    """
+    for pattern, label in ENTITY_PATTERNS:
+        if pattern.match(text):
+            return label
     return entity_label
 
-def extract_entities(text):
+def extract_entities(text: str) -> List[Tuple[str, str]]:
+    """
+    Extract entities from text and correct their labels.
+    """
     doc = nlp(text)
-    entities = [(ent.text, correct_entity_type(ent.text, ent.label_)) for ent in doc.ents]
-    return entities
+    return [(ent.text, correct_entity_type(ent.text, ent.label_)) for ent in doc.ents]
 
-if __name__ == "__main__":
+def main():
+    if len(sys.argv) < 2:
+        sys.stderr.write("Usage: python script.py <text>\n")
+        sys.exit(1)
     text = sys.argv[1]
     entities = extract_entities(text)
     print(json.dumps(entities))
+
+if __name__ == "__main__":
+    main()

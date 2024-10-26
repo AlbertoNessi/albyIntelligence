@@ -1,0 +1,216 @@
+  $(document).ready(function() {
+      function escapeHtml(unsafe) {
+          return unsafe
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+      }
+
+      function capitalizeFirstLetter(string) {
+          if (typeof string !== 'string') return string;
+          return string.charAt(0).toUpperCase() + string.slice(1);
+      }
+
+      function showResponse(responseData, message) {
+          let responseHtml = `
+          <div class="card mt-3">
+              <div class="card-header">Question</div>
+              <div class="card-body">
+                  <p>` + message + `</p>
+              </div>
+          </div>
+          <div class="card mt-3">
+              <div class="card-header">Response</div>
+              <div class="card-body">`;
+
+          if (typeof responseData === 'object' && responseData !== null) {
+              if (Array.isArray(responseData)) {
+                  if (responseData.length === 0) {
+                      responseHtml += `<p class="card-text">No data available.</p>`;
+                  } else {
+                      let tableHeaders = Object.keys(responseData[0]).map(key => `<th>${escapeHtml(capitalizeFirstLetter(key))}</th>`).join('');
+                      let tableRows = responseData.map(item => {
+                          let row = '<tr>';
+                          for (let key in item) {
+                              if (item.hasOwnProperty(key)) {
+                                  row += `<td>${escapeHtml(item[key])}</td>`;
+                              }
+                          }
+                          row += '</tr>';
+                          return row;
+                      }).join('');
+
+                      responseHtml += `
+                      <table class="table table-striped">
+                          <thead>
+                              <tr>
+                                  ${tableHeaders}
+                              </tr>
+                          </thead>
+                          <tbody>
+                              ${tableRows}
+                          </tbody>
+                      </table>`;
+                  }
+              } else {
+                  responseHtml += '<table class="table table-bordered">';
+                  responseHtml += '<thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
+
+                  for (const key in responseData) {
+                      if (responseData.hasOwnProperty(key)) {
+                          responseHtml += `
+                      <tr>
+                          <td>${escapeHtml(capitalizeFirstLetter(key))}</td>
+                          <td>${escapeHtml(responseData[key])}</td>
+                      </tr>`;
+                      }
+                  }
+
+                  responseHtml += '</tbody></table>';
+              }
+          } else {
+              responseHtml += `<p class="card-text">${escapeHtml(responseData)}</p>`;
+          }
+
+          responseHtml += `
+          </div>
+      </div>`;
+
+          $("#responseContainer").html(responseHtml);
+      }
+
+      function showAlert(message, type) {
+          let alertHtml =
+              `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+              ${escapeHtml(message)}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>`;
+          $("#alertContainer").html(alertHtml);
+
+          setTimeout(function() {
+              $(".alert").alert('close');
+          }, 5000);
+      }
+
+      // Voice Input Functionality
+      let recognition;
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+          const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+          recognition = new SpeechRecognition();
+          recognition.lang = 'en-US';
+          recognition.continuous = false;
+          recognition.interimResults = false;
+
+          $('#startVoiceInputBtn').on('click', function() {
+              recognition.start();
+              console.log("recognition start");
+          });
+
+          recognition.onresult = function(event) {
+              console.log("onresult");
+              const transcript = event.results[0][0].transcript;
+
+              console.log("transcript: " + transcript);
+              $('#userMessage').val(transcript);
+
+              $('#sendUserMessageBtn').click();
+          };
+
+          recognition.onerror = function(event) {
+              console.error('Speech recognition error:', event.error);
+              showAlert('Speech recognition error: ' + event.error, 'danger');
+          };
+
+          recognition.onend = function() {
+              console.log('Speech recognition ended');
+          };
+      } else {
+          $('#startVoiceInputBtn').prop('disabled', true);
+          showAlert('Speech recognition not supported in this browser.', 'warning');
+      }
+
+      // Event listener for the send button
+      $('#sendUserMessageBtn').on('click', function(event) {
+          event.preventDefault();
+          let message = $('#userMessage').val().trim();
+
+          // Input validation
+          if (message === "") {
+              showAlert('Please enter a message before sending.', 'warning');
+              return;
+          }
+
+          // Disable the send button and show a loading indicator (optional)
+          $('#sendUserMessageBtn').prop('disabled', true).text('Sending...');
+          $('#loadingSpinner').show();
+
+          // AJAX request to the backend
+          $.ajax({
+              url: '{{ url('searchInsideSemanticIndex_url') }}',
+              type: 'POST',
+              contentType: 'application/json',
+              data: JSON.stringify({ message: message }),
+              success: function(response) {
+                  let responseData;
+
+                  if (response['choices'] && Array.isArray(response['choices'])) {
+                      try {
+                          responseData = JSON.parse(response['choices'][0]['message']['content']);
+
+                          if (responseData['result']) {
+                              showResponse(responseData['result'], message);
+                          } else {
+                              let errorMessage = responseData['error'] || "No result found.";
+                              showResponse(errorMessage, message);
+                          }
+                      } catch (e) {
+                          console.error('JSON Parsing Error:', e);
+                          let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
+                          showResponse(fallbackResponse, message);
+                      }
+                  } else if (response['result']) {
+                      showResponse(response['result'], message);
+                  } else if (response['error']) {
+                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['error'])}`);
+                  } else {
+                      showResponse("No data available.");
+                  }
+              },
+              error: function(xhr, status, error) {
+                  console.error('AJAX Error:', status, error);
+                  showAlert('Error! Failed to send data.', 'danger');
+              },
+              complete: function() {
+                  $('#sendUserMessageBtn').prop('disabled', false).text('Send');
+                  $('#loadingSpinner').hide();
+                  $('#userMessage').val('');
+              }
+          });
+      });
+
+      $("#updateIndexBtn").on("click", function () {
+          $(this).classList
+          $.ajax({
+              url: "{{ path('indexDocuments_url') }}",
+              type: "POST",
+              dataType: "json",
+              data: {
+                  _token: "{{ csrf_token('update_index') }}"
+              },
+              success: function (response) {
+                  console.log(response.code);
+                  if (response.code === 'success') {
+                      showAlert("success", response.message);
+                  } else {
+                      showAlert("warning", response.message);
+                  }
+              },
+              error: function (xhr, status, error) {
+                  console.log([xhr, status, error]);
+                  showAlert("danger", "An error occurred: " + error);
+              }
+          });
+      });
+  });
