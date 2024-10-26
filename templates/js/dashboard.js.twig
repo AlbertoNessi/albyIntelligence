@@ -191,6 +191,15 @@
       });
 
       $("#updateIndexBtn").on("click", function () {
+          const btn = $(this);
+          const normalState = btn.find('.normal-state');
+          const loadingState = btn.find('.loading-state');
+
+          // Disable button and show loading state
+          btn.prop('disabled', true);
+          normalState.addClass('d-none');
+          loadingState.removeClass('d-none');
+
           $(this).classList
           $.ajax({
               url: "{{ path('indexDocuments_url') }}",
@@ -210,6 +219,11 @@
               error: function (xhr, status, error) {
                   console.log([xhr, status, error]);
                   showAlert("danger", "An error occurred: " + error);
+              },
+              complete: function() {
+                  btn.prop('disabled', false);
+                  normalState.removeClass('d-none');
+                  loadingState.addClass('d-none');
               }
           });
       });
