@@ -159,6 +159,9 @@
                       try {
                           responseData = JSON.parse(response['choices'][0]['message']['content']);
 
+                          console.log("responseData");
+                          console.log(responseData);
+
                           if (responseData['result']) {
                               showResponse(responseData['result'], message);
                           } else {

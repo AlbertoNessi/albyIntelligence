@@ -6,7 +6,7 @@ class AIPromptResponseService
 {
     public function generateAIPromptResponse(string $userMessage, string $dataText): array
     {
-        $promptMessage = "Based on the following data, answer the question with structured data: \"{$userMessage}\"\n\n{$dataText}";
+        $promptMessage = "Based on the following data, answer the question in natural language \"{$userMessage}\"\n\n{$dataText}";
 
         $systemContent = <<<EOD
             You are a helpful assistant who helps the user search for information within a web app. Respond to this user request with the following results in ElasticSearch JSON. Translate these results into natural language and then display the result to the user.
@@ -25,7 +25,9 @@ class AIPromptResponseService
             # Output Format
 
             1. As briefly and concisely as possible.
-            2. If required by the context as a well-structured paragraph in natural language.
+            2. With natural language, not structured output
+            3. If required by the context as a well-structured paragraph in natural language.
+            4. Do not use arrays or objects in your response.
 
             # Notes
 
