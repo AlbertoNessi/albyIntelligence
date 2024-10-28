@@ -1,3 +1,8 @@
+# Roadmap
+- Create a button to update the semantic index
+- Log the updated timestamp into `LastIndexUpdate` entity
+- 
+
 ### Working queries
 - Who wants to buy dad's a adapter for the iPhone?
 - What are the ideas about the present for dad's birthday?

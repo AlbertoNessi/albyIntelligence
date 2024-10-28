@@ -17,8 +17,8 @@ class LastIndexUpdate
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $updatedAt = null;
 
-    #[ORM\Column(nullable: true)]
-    private Boolean|null $isLast = null;
+    #[ORM\Column(type: 'boolean', nullable: true)]
+    private ?bool $isLast = null;
 
     public function getId(): ?int
     {
@@ -37,17 +37,16 @@ class LastIndexUpdate
         return $this;
     }
 
-    public function getIsLast(): ?string
+    public function getIsLast(): ?bool
     {
         return $this->isLast;
     }
 
-    public function setIsLast(?string $isLast): static
+    public function setIsLast(?bool $isLast): static
     {
         $this->isLast = $isLast;
 
         return $this;
     }
-
 
 }

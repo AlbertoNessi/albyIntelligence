@@ -5,11 +5,14 @@ namespace App\Controller;
 use App\Entity\Contacts;
 use App\Entity\Emails;
 use App\Entity\Events;
+use App\Entity\LastIndexUpdate;
 use App\Entity\Locations;
 use App\Entity\Messages;
 use App\Entity\Notes;
 use App\Entity\Reminders;
 use App\Entity\Tasks;
+use DateTimeImmutable;
+use Doctrine\ORM\EntityManagerInterface;
 use Elastic\Elasticsearch\ClientBuilder;
 use Elastic\Elasticsearch\Exception\AuthenticationException;
 use Elastic\Elasticsearch\Exception\ClientResponseException;
@@ -23,6 +26,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Services\SemanticIndexService;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class IndexDocumentsController extends AbstractController
 {
@@ -224,4 +229,45 @@ class IndexDocumentsController extends AbstractController
         }
     }
 
+    #[Route('/log_index_update', name: 'logIndexUpdate_url', methods: ['POST'])]
+    public function logIndexUpdate(
+        Request $request,
+        EntityManagerInterface $entityManager,
+        CsrfTokenManagerInterface $csrfTokenManager
+    ): JsonResponse {
+        try {
+            $submittedToken = $request->request->get('_token');
+            $csrfToken = new CsrfToken('log_index_update', $submittedToken);
+
+            if (!$csrfTokenManager->isTokenValid($csrfToken)) {
+                return new JsonResponse(['error' => 'Invalid CSRF token'], 400);
+            }
+
+            $existingLogs = $entityManager->getRepository(LastIndexUpdate::class)->findAll();
+            if($existingLogs) {
+                foreach ($existingLogs as $log) {
+                    $log->setIsLast(false);
+                    $entityManager->persist($log);
+                }
+                $entityManager->flush();
+            }
+
+            $lastIndexUpdate = new LastIndexUpdate();
+            $lastIndexUpdate->setUpdatedAt(new \DateTimeImmutable());
+            $lastIndexUpdate->setIsLast(true);
+
+            $entityManager->persist($lastIndexUpdate);
+            $entityManager->flush();
+
+            return new JsonResponse([
+                'code' => 'OK',
+                'message' => 'Index update logged successfully',
+            ], 200);
+        } catch (\Exception $exception) {
+            return new JsonResponse([
+                'code' => 'KO',
+                'error' => "#" . $exception->getLine() . " - " . $exception->getMessage()
+            ], 500);
+        }
+    }
 }

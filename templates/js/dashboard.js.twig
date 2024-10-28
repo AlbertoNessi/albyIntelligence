@@ -83,7 +83,7 @@
 
       function showAlert(message, type) {
           let alertHtml =
-              `<div class="alert alert-${type} alert-dismissible fade show" role="alert">
+              `<div class="alert alert-${type} alert-dismissible fade show bg-success" role="alert">
               ${escapeHtml(message)}
               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>`;
@@ -203,7 +203,6 @@
           normalState.addClass('d-none');
           loadingState.removeClass('d-none');
 
-          $(this).classList
           $.ajax({
               url: "{{ path('indexDocuments_url') }}",
               type: "POST",
@@ -212,9 +211,12 @@
                   _token: "{{ csrf_token('update_index') }}"
               },
               success: function (response) {
+                  console.log(response);
                   console.log(response.code);
-                  if (response.code === 'success') {
+                  if (response.code === 'OK') {
                       showAlert("success", response.message);
+
+                      logUpdatedIndexTimestamp();
                   } else {
                       showAlert("warning", response.message);
                   }
@@ -230,4 +232,22 @@
               }
           });
       });
+
+      function logUpdatedIndexTimestamp() {
+          $.ajax({
+              url: "{{ path('logIndexUpdate_url') }}",
+              type: "POST",
+              dataType: "json",
+              data: {
+                  _token: "{{ csrf_token('log_index_update') }}",
+                  timestamp: new Date().toISOString()
+              },
+              success: function (response) {
+                  console.log('Index update logged successfully:', response);
+              },
+              error: function (xhr, status, error) {
+                  console.error('Failed to log index update:', error);
+              }
+          });
+      }
   });
