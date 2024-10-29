@@ -270,4 +270,22 @@ class IndexDocumentsController extends AbstractController
             ], 500);
         }
     }
+
+    #[Route('/get_last_updated_time', name: 'getLastUpdatedTime_url', methods: ['GET'])]
+    public function getLastUpdatedTime(EntityManagerInterface $entityManager): JsonResponse
+    {
+        $repository = $entityManager->getRepository(LastIndexUpdate::class);
+
+        $lastUpdate = $repository->findOneBy(['isLast' => true]);
+
+        if ($lastUpdate) {
+            $updatedAt = $lastUpdate->getUpdatedAt();
+
+            $formattedDate = $updatedAt->format('d-m-Y H:i:s');
+
+            return new JsonResponse(['updatedAt' => $formattedDate]);
+        } else {
+            return new JsonResponse(['updatedAt' => null]);
+        }
+    }
 }

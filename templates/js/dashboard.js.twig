@@ -193,6 +193,48 @@
           });
       });
 
+      function logUpdatedIndexTimestamp() {
+          $.ajax({
+              url: "{{ path('logIndexUpdate_url') }}",
+              type: "POST",
+              dataType: "json",
+              data: {
+                  _token: "{{ csrf_token('log_index_update') }}",
+                  timestamp: new Date().toISOString()
+              },
+              success: function (response) {
+                  console.log('Index update logged successfully:', response);
+
+                  fetchLastUpdatedTime();
+              },
+              error: function (xhr, status, error) {
+                  console.error('Failed to log index update:', error);
+              }
+          });
+      }
+
+      // Function to fetch and display the last updated time
+      function fetchLastUpdatedTime() {
+          $.ajax({
+              url: "{{ path('getLastUpdatedTime_url') }}",
+              type: "GET",
+              dataType: "json",
+              success: function(response) {
+                  if (response.updatedAt) {
+                      $('#lastUpdatedTimestamp').text(response.updatedAt);
+                  } else {
+                      $('#lastUpdatedTimestamp').text('No updates yet.');
+                  }
+              },
+              error: function (xhr, status, error) {
+                  console.error('Failed to fetch last updated time:', error);
+                  $('#lastUpdatedTimestamp').text('Error fetching last updated time.');
+              }
+          });
+      }
+
+      fetchLastUpdatedTime();
+
       $("#updateIndexBtn").on("click", function () {
           const btn = $(this);
           const normalState = btn.find('.normal-state');
@@ -232,22 +274,4 @@
               }
           });
       });
-
-      function logUpdatedIndexTimestamp() {
-          $.ajax({
-              url: "{{ path('logIndexUpdate_url') }}",
-              type: "POST",
-              dataType: "json",
-              data: {
-                  _token: "{{ csrf_token('log_index_update') }}",
-                  timestamp: new Date().toISOString()
-              },
-              success: function (response) {
-                  console.log('Index update logged successfully:', response);
-              },
-              error: function (xhr, status, error) {
-                  console.error('Failed to log index update:', error);
-              }
-          });
-      }
   });
