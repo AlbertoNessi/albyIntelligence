@@ -59,17 +59,23 @@ class SemanticSearchController extends AbstractController
             }
 
             $dataText = $this->formatResults($results);
-
             $prompt = $this->aiPromptResponseService->generateAIPromptResponse($message, $dataText);
             $response = $this->chatGPTService->sendRequest($prompt);
 
-            return $this->json($response);
+            return new JsonResponse([
+                'code' => 'OK',
+                'message' => $response
+            ]);
         } catch (\Throwable $e) {
-            $this->logger->error('An error occurred in searchInsideSemanticIndex: ' . $e->getMessage(), ['exception' => $e]);
-            return $this->json(
-                ['error' => 'An unexpected error occurred. Please try again later.'],
-                Response::HTTP_INTERNAL_SERVER_ERROR
-            );
+            return new JsonResponse([
+                'code' => 'KO',
+                'message' => [
+                    'line' => $e->getLine(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'file' => $e->getFile()
+                ]
+            ]);
         }
     }
 

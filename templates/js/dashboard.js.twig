@@ -159,9 +159,6 @@
                       try {
                           responseData = JSON.parse(response['choices'][0]['message']['content']);
 
-                          console.log("responseData");
-                          console.log(responseData);
-
                           if (responseData['result']) {
                               showResponse(responseData['result'], message);
                           } else {
@@ -169,7 +166,6 @@
                               showResponse(errorMessage, message);
                           }
                       } catch (e) {
-                          console.error('JSON Parsing Error:', e);
                           let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
                           showResponse(fallbackResponse, message);
                       }
@@ -182,7 +178,6 @@
                   }
               },
               error: function(xhr, status, error) {
-                  console.error('AJAX Error:', status, error);
                   showAlert('Error! Failed to send data.', 'danger');
               },
               complete: function() {
@@ -203,8 +198,6 @@
                   timestamp: new Date().toISOString()
               },
               success: function (response) {
-                  console.log('Index update logged successfully:', response);
-
                   fetchLastUpdatedTime();
               },
               error: function (xhr, status, error) {
@@ -227,7 +220,6 @@
                   }
               },
               error: function (xhr, status, error) {
-                  console.error('Failed to fetch last updated time:', error);
                   $('#lastUpdatedTimestamp').text('Error fetching last updated time.');
               }
           });
