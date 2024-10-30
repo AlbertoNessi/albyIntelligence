@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Exception;
-use JsonException;
 use Psr\Log\LoggerInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -28,11 +27,12 @@ class ChatGPTService
      * @param bool $jsonMode
      * @return array
      * @throws TransportExceptionInterface
-     * @throws JsonException
+     * @throws \JsonException
      * @throws Exception
      */
     public function sendRequest(array $messages, bool $jsonMode = true): array
     {
+        $this->logger->info("Entering sendRequest method.");
         $requestData = [
             'model' => 'gpt-4o-mini',
             'messages' => $messages,
@@ -50,12 +50,18 @@ class ChatGPTService
                     'Authorization' => 'Bearer ' . $this->apiKey,
                 ],
                 'json' => $requestData,
+                'timeout' => 120,
             ]);
+        } catch (TransportExceptionInterface $exception) {
+            $this->logger->error("Transport exception: " . $exception->getMessage());
+            throw new Exception("Network error: " . $exception->getMessage());
         } catch (Exception $exception) {
-            throw new Exception($exception->getMessage());
+            $this->logger->error("General exception: " . $exception->getMessage());
+            throw new Exception("An error occurred: " . $exception->getMessage());
         }
 
         $content = $response->getContent();
+        $this->logger->info("Response: " . $content);
 
         return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
     }

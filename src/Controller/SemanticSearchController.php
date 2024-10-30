@@ -57,11 +57,16 @@ class SemanticSearchController extends AbstractController
             if ($results['code'] === 'ERROR') {
                 return $this->json(['error' => "No data available"], Response::HTTP_NOT_FOUND);
             }
-            
 
             $dataText = $this->formatResults($results);
+
+            /*dd($dataText);*/
             $prompt = $this->aiPromptResponseService->generateAIPromptResponse($message, $dataText);
+
+            /*dd($prompt);*/
             $response = $this->chatGPTService->sendRequest($prompt);
+
+            $this->logger->info("Dopo sendRequest");
 
             return new JsonResponse([
                 'code' => 'OK',

@@ -153,34 +153,50 @@
               contentType: 'application/json',
               data: JSON.stringify({ message: message }),
               success: function(response) {
+                  console.log("AJAX Success Callback Triggered.");
+                  console.log("Raw Response:", response);
+
                   let responseData;
 
-                  if (response['choices'] && Array.isArray(response['choices'])) {
+                  // Adjusted to access 'choices' inside 'message'
+                  if (response['message'] && response['message']['choices'] && Array.isArray(response['message']['choices'])) {
+                      console.log("Response contains 'choices' array inside 'message'.");
                       try {
-                          responseData = JSON.parse(response['choices'][0]['message']['content']);
+                          const content = response['message']['choices'][0]['message']['content'];
+                          console.log("Content to parse:", content);
 
-                          if (responseData['result']) {
-                              showResponse(responseData['result'], message);
-                          } else {
-                              let errorMessage = responseData['error'] || "No result found.";
-                              showResponse(errorMessage, message);
-                          }
+                          // Attempt to parse the content as JSON
+                          responseData = JSON.parse(content);
+                          console.log("Parsed responseData:", responseData);
+
+                          showResponse(responseData, message);
                       } catch (e) {
-                          let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
+                          console.error("JSON Parsing Error:", e);
+                          // If parsing fails, use the raw content
+                          let fallbackResponse = response['message']['choices'][0]['message']['content'] || "No data available.";
+                          console.log("Using fallbackResponse:", fallbackResponse);
                           showResponse(fallbackResponse, message);
                       }
-                  } else if (response['result']) {
-                      showResponse(response['result'], message);
-                  } else if (response['error']) {
-                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['error'])}`);
+                  } else if (response['message'] && response['message']['result']) {
+                      console.log("Response contains 'result' inside 'message':", response['message']['result']);
+                      showResponse(response['message']['result'], message);
+                  } else if (response['message'] && response['message']['error']) {
+                      console.log("Response contains 'error' inside 'message':", response['message']['error']);
+                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['message']['error'])}`);
                   } else {
+                      console.log("Response does not contain 'choices', 'result', or 'error' inside 'message'.");
                       showResponse("No data available.");
                   }
               },
               error: function(xhr, status, error) {
+                  console.error("AJAX Error Callback Triggered.");
+                  console.error("Status:", status);
+                  console.error("Error:", error);
+                  console.error("XHR Object:", xhr);
                   showAlert('Error! Failed to send data.', 'danger');
               },
               complete: function() {
+                  console.log("AJAX Request Completed.");
                   $('#sendUserMessageBtn').prop('disabled', false).text('Send');
                   $('#loadingSpinner').hide();
                   $('#userMessage').val('');
