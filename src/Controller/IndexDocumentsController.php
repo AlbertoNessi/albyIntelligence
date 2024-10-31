@@ -66,7 +66,7 @@ class IndexDocumentsController extends AbstractController
                 'locations',
             ];
 
-            // Delete existing indices
+            // Delete existing indices 
             foreach ($indices as $index) {
                 try {
                     if ($semanticIndexService->checkIndexExistance($index)) {
