@@ -72,4 +72,23 @@ class AIElasticSearchService
             ];
         }
     }
+
+    /**
+     * @throws ServerResponseException
+     * @throws ClientResponseException
+     */
+    public function getDocuments(array $indexes): array
+    {
+        $response = $this->client->search([
+            'index' => implode(',', $indexes),
+            'body' => [
+                'query' => [
+                    'match_all' => new \stdClass()
+                ],
+                'size' => 200 // Specify the number of documents to retrieve
+            ]
+        ]);
+
+        return $response['hits']['hits'] ?? [];
+    }
 }

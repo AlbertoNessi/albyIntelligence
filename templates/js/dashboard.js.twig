@@ -265,5 +265,36 @@
                   loadingState.addClass('d-none');
               }
           });
+      })
+
+      $("#showCurrentSemanticIndex").on("click", function (){
+          $.ajax({
+              url: "{{ path('indexDocuments_url') }}",
+              type: "POST",
+              dataType: "json",
+              data: {
+                  _token: "{{ csrf_token('update_index') }}"
+              },
+              success: function (response) {
+                  console.log(response);
+                  console.log(response.code);
+                  if (response.code === 'OK') {
+                      showAlert("success", response.message);
+
+                      logUpdatedIndexTimestamp();
+                  } else {
+                      showAlert("warning", response.message);
+                  }
+              },
+              error: function (xhr, status, error) {
+                  console.log([xhr, status, error]);
+                  showAlert("danger", "An error occurred: " + error);
+              },
+              complete: function() {
+                  btn.prop('disabled', false);
+                  normalState.removeClass('d-none');
+                  loadingState.addClass('d-none');
+              }
+          });
       });
   });

@@ -6,6 +6,7 @@ use App\Services\AIElasticSearchService;
 use App\Services\AIPromptResponseService;
 use App\Services\ChatGPTService;
 use App\Services\RequestHandlerService;
+use App\Services\SemanticIndexService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,19 +23,22 @@ class SemanticSearchController extends AbstractController
     private AIElasticSearchService $elasticSearchService;
     private AIPromptResponseService $aiPromptResponseService;
     private LoggerInterface $logger;
+    private semanticIndexService $semanticIndexService;
 
     public function __construct(
         ChatGPTService $chatGPTService,
         RequestHandlerService $requestHandlerService,
         AIElasticSearchService $elasticSearchService,
         AIPromptResponseService $aiPromptResponseService,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        SemanticIndexService $semanticIndexService
     ) {
         $this->chatGPTService = $chatGPTService;
         $this->requestHandlerService = $requestHandlerService;
         $this->elasticSearchService = $elasticSearchService;
         $this->aiPromptResponseService = $aiPromptResponseService;
         $this->logger = $logger;
+        $this->semanticIndexService = $semanticIndexService;
     }
 
     #[Route('/search_in_semantic_index', name: 'searchInsideSemanticIndex_url', methods: ['POST'])]
@@ -55,7 +59,7 @@ class SemanticSearchController extends AbstractController
             $promptForElasticSearch = $this->chatGPTService->sendRequest($generatedPromptForElasticSearch, false);
             $extractedPromptForElasticSearch = $this->chatGPTService->extractResponseContent($promptForElasticSearch);
             $queryType = $this->determineQueryType($message);
-            $indicesAndFields = $this->getIndicesAndFields();
+            $indicesAndFields = $this->semanticIndexService->getIndicesAndFields();
 
             $results = $this->elasticSearchService->search($indicesAndFields, $extractedPromptForElasticSearch, $queryType);
 
@@ -97,22 +101,6 @@ class SemanticSearchController extends AbstractController
                 ]
             ]);
         }
-    }
-
-    /**
-     * Returns the indices and fields used for the ElasticSearch query.
-     *
-     * @return array
-     */
-    private function getIndicesAndFields(): array
-    {
-        return [
-            'contacts' => ['name', 'surname', 'email', 'phone', 'entities.text'],
-            'emails' => ['sender', 'receiver', 'subject', 'message', 'entities', 'entities.text'],
-            'events' => ['title', 'subtitle', 'note'],
-            'messages' => ['sender', 'message', 'receiver'],
-            'notes' => ['note', 'receiver'],
-        ];
     }
 
     /**

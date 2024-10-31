@@ -114,9 +114,40 @@ class SemanticIndexService
      * @throws ServerResponseException
      * @throws MissingParameterException
      */
-    public function checkIndexExistance(string $indexName): bool
+    public function checkIndexExistence(string $indexName): bool
     {
         return $this->client->indices()->exists(['index' => $indexName])->asBool();
+    }
 
+    /**
+     * Returns the indices and fields used for the ElasticSearch query.
+     *
+     * @return array
+     */
+    public function getIndicesAndFields(): array
+    {
+        return [
+            'contacts' => ['name', 'surname', 'email', 'phone', 'entities.text'],
+            'emails' => ['sender', 'receiver', 'subject', 'message', 'entities', 'entities.text'],
+            'events' => ['title', 'subtitle', 'note'],
+            'messages' => ['sender', 'message', 'receiver'],
+            'notes' => ['note', 'receiver'],
+        ];
+    }
+
+    /**
+     * Returns the indices used to show the semantic index.
+     *
+     * @return array
+     */
+    public function getIndices(): array
+    {
+        return [
+            'contacts',
+            'emails',
+            'events',
+            'messages',
+            'notes'
+        ];
     }
 }

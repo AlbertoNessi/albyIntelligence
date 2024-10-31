@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Indices</h5>
+                <ul>
+                    {% for index in indices %}
+                        <li>{{ index }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-body">
+                <h5>Content</h5>
+                {% set currentIndex = null %}
+                <ul>
+                    {% for document in documents %}
+                        {% if currentIndex != document._index %}
+                            <h5 class="card-title mt-4">{{ document._index|capitalize }}</h5>
+                            {% set currentIndex = document._index %}
+                        {% endif %}
+                        <li><p class="card-text">{{ document._source | json_encode(constant('JSON_PRETTY_PRINT')) }}</p></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block js %}
+
+{% endblock %}
+

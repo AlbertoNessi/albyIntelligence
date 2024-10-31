@@ -25,12 +25,21 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Services\SemanticIndexService;
+use App\Services\AIElasticSearchService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 
 class IndexDocumentsController extends AbstractController
 {
+    private AIElasticSearchService $elasticSearchService;
+    private SemanticIndexService $semanticIndexService;
+
+    public function __construct(AIElasticSearchService $elasticSearchService, SemanticIndexService $semanticIndexService) {
+        $this->elasticSearchService = $elasticSearchService;
+        $this->semanticIndexService = $semanticIndexService;
+    }
+
     /**
      * @throws AuthenticationException
      * @throws Exception
@@ -52,9 +61,6 @@ class IndexDocumentsController extends AbstractController
 
             $client = ClientBuilder::create()->setHosts(['http://elasticsearch:9200'])->build();
 
-            $documents = [];
-
-            // List of indices to delete and reindex
             $indices = [
                 'contacts',
                 'emails',
@@ -66,10 +72,10 @@ class IndexDocumentsController extends AbstractController
                 'locations',
             ];
 
-            // Delete existing indices 
+            // Delete existing indices
             foreach ($indices as $index) {
                 try {
-                    if ($semanticIndexService->checkIndexExistance($index)) {
+                    if ($semanticIndexService->checkIndexExistence($index)) {
                         $response = $semanticIndexService->deleteExistingIndex($index);
 
                         if ($response['acknowledged'] !== true) {
@@ -82,6 +88,8 @@ class IndexDocumentsController extends AbstractController
                     return new JsonResponse("Error " . $e->getMessage() . " on line: " . $e->getLine(), 500);
                 }
             }
+
+            $documents = [];
 
             $semanticIndexService->processEntities(
                 Contacts::class,
@@ -180,7 +188,7 @@ class IndexDocumentsController extends AbstractController
 
                     // Refresh indices to make documents searchable immediately
                     foreach ($indices as $index) {
-                        if ($semanticIndexService->checkIndexExistance($index)) {
+                        if ($semanticIndexService->checkIndexExistence($index)) {
                             $client->indices()->refresh(['index' => $index]);
                         }
                     }
@@ -287,5 +295,18 @@ class IndexDocumentsController extends AbstractController
         } else {
             return new JsonResponse(['updatedAt' => null]);
         }
+    }
+
+    #[Route('/semantic_index/content', name: 'showSemanticIndexContent_url', methods: ['GET'])]
+    public function showSemanticIndexContent(): Response
+    {
+        $indices = $this->semanticIndexService->getIndices();
+        $documents = $this->elasticSearchService->getDocuments($indices);
+
+        return $this->render('current_semantic_index_content.html.twig', [
+            'indices' => $indices,
+            'documents' => $documents,
+            'table_id' => ''
+        ]);
     }
 }
