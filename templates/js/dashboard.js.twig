@@ -158,35 +158,7 @@
 
                   let responseData;
 
-                  // Adjusted to access 'choices' inside 'message'
-                  if (response['message'] && response['message']['choices'] && Array.isArray(response['message']['choices'])) {
-                      console.log("Response contains 'choices' array inside 'message'.");
-                      try {
-                          const content = response['message']['choices'][0]['message']['content'];
-                          console.log("Content to parse:", content);
-
-                          // Attempt to parse the content as JSON
-                          responseData = JSON.parse(content);
-                          console.log("Parsed responseData:", responseData);
-
-                          showResponse(responseData, message);
-                      } catch (e) {
-                          console.error("JSON Parsing Error:", e);
-                          // If parsing fails, use the raw content
-                          let fallbackResponse = response['message']['choices'][0]['message']['content'] || "No data available.";
-                          console.log("Using fallbackResponse:", fallbackResponse);
-                          showResponse(fallbackResponse, message);
-                      }
-                  } else if (response['message'] && response['message']['result']) {
-                      console.log("Response contains 'result' inside 'message':", response['message']['result']);
-                      showResponse(response['message']['result'], message);
-                  } else if (response['message'] && response['message']['error']) {
-                      console.log("Response contains 'error' inside 'message':", response['message']['error']);
-                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['message']['error'])}`);
-                  } else {
-                      console.log("Response does not contain 'choices', 'result', or 'error' inside 'message'.");
-                      showResponse("No data available.");
-                  }
+                  showResponse(response['message'], response['user_query']);
               },
               error: function(xhr, status, error) {
                   console.error("AJAX Error Callback Triggered.");

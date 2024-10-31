@@ -61,8 +61,12 @@ class ChatGPTService
         }
 
         $content = $response->getContent();
-        $this->logger->info("Response: " . $content);
 
         return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+    }
+
+    public function extractResponseContent($response): string
+    {
+        return $response['choices'][0]['message']['content'];
     }
 }

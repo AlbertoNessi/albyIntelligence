@@ -6,12 +6,14 @@ use App\Services\AIElasticSearchService;
 use App\Services\AIPromptResponseService;
 use App\Services\ChatGPTService;
 use App\Services\RequestHandlerService;
+use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class SemanticSearchController extends AbstractController
 {
@@ -48,31 +50,43 @@ class SemanticSearchController extends AbstractController
                 return $this->json(['error' => 'Invalid message parameter'], Response::HTTP_BAD_REQUEST);
             }
 
+            // GENERATE REQUEST
+            $generatedPromptForElasticSearch = $this->aiPromptResponseService->generatePromptForElasticSearch($message);
+            $promptForElasticSearch = $this->chatGPTService->sendRequest($generatedPromptForElasticSearch, false);
+            $extractedPromptForElasticSearch = $this->chatGPTService->extractResponseContent($promptForElasticSearch);
+            $queryType = $this->determineQueryType($message);
             $indicesAndFields = $this->getIndicesAndFields();
 
-            $queryType = $this->determineQueryType($message);
-
-            $results = $this->elasticSearchService->search($indicesAndFields, $message, $queryType);
+            $results = $this->elasticSearchService->search($indicesAndFields, $extractedPromptForElasticSearch, $queryType);
 
             if ($results['code'] === 'ERROR') {
                 return $this->json(['error' => "No data available"], Response::HTTP_NOT_FOUND);
             }
 
+            // GENERATE RESPONSE
             $dataText = $this->formatResults($results);
-
-            /*dd($dataText);*/
             $prompt = $this->aiPromptResponseService->generateAIPromptResponse($message, $dataText);
-
-            /*dd($prompt);*/
             $response = $this->chatGPTService->sendRequest($prompt);
+            $extractedResponse = $this->chatGPTService->extractResponseContent($response);
 
             $this->logger->info("Dopo sendRequest");
 
             return new JsonResponse([
                 'code' => 'OK',
-                'message' => $response
+                'user_query' => $message,
+                'message' => $extractedResponse
             ]);
-        } catch (\Throwable $e) {
+        } catch (Exception $e) {
+            return new JsonResponse([
+                'code' => 'KO',
+                'message' => [
+                    'line' => $e->getLine(),
+                    'message' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString(),
+                    'file' => $e->getFile()
+                ]
+            ]);
+        } catch (TransportExceptionInterface $e) {
             return new JsonResponse([
                 'code' => 'KO',
                 'message' => [
