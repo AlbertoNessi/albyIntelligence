@@ -153,22 +153,34 @@
               contentType: 'application/json',
               data: JSON.stringify({ message: message }),
               success: function(response) {
-                  console.log("AJAX Success Callback Triggered.");
-                  console.log("Raw Response:", response);
-
                   let responseData;
 
-                  showResponse(response['message'], response['user_query']);
+                  if (response['choices'] && Array.isArray(response['choices'])) {
+                      try {
+                          responseData = JSON.parse(response['choices'][0]['message']['content']);
+
+                          if (responseData['result']) {
+                              showResponse(responseData['result'], message);
+                          } else {
+                              let errorMessage = responseData['error'] || "No result found.";
+                              showResponse(errorMessage, message);
+                          }
+                      } catch (e) {
+                          let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
+                          showResponse(fallbackResponse, message);
+                      }
+                  } else if (response['result']) {
+                      showResponse(response['result'], message);
+                  } else if (response['error']) {
+                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['error'])}`);
+                  } else {
+                      showResponse("No data available.");
+                  }
               },
               error: function(xhr, status, error) {
-                  console.error("AJAX Error Callback Triggered.");
-                  console.error("Status:", status);
-                  console.error("Error:", error);
-                  console.error("XHR Object:", xhr);
                   showAlert('Error! Failed to send data.', 'danger');
               },
               complete: function() {
-                  console.log("AJAX Request Completed.");
                   $('#sendUserMessageBtn').prop('disabled', false).text('Send');
                   $('#loadingSpinner').hide();
                   $('#userMessage').val('');
