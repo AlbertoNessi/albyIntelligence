@@ -23,60 +23,10 @@
           </div>
           <div class="card mt-3">
               <div class="card-header">Response</div>
-              <div class="card-body">`;
-
-          if (typeof responseData === 'object' && responseData !== null) {
-              if (Array.isArray(responseData)) {
-                  if (responseData.length === 0) {
-                      responseHtml += `<p class="card-text">No data available.</p>`;
-                  } else {
-                      let tableHeaders = Object.keys(responseData[0]).map(key => `<th>${escapeHtml(capitalizeFirstLetter(key))}</th>`).join('');
-                      let tableRows = responseData.map(item => {
-                          let row = '<tr>';
-                          for (let key in item) {
-                              if (item.hasOwnProperty(key)) {
-                                  row += `<td>${escapeHtml(item[key])}</td>`;
-                              }
-                          }
-                          row += '</tr>';
-                          return row;
-                      }).join('');
-
-                      responseHtml += `
-                      <table class="table table-striped">
-                          <thead>
-                              <tr>
-                                  ${tableHeaders}
-                              </tr>
-                          </thead>
-                          <tbody>
-                              ${tableRows}
-                          </tbody>
-                      </table>`;
-                  }
-              } else {
-                  responseHtml += '<table class="table table-bordered">';
-                  responseHtml += '<thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
-
-                  for (const key in responseData) {
-                      if (responseData.hasOwnProperty(key)) {
-                          responseHtml += `
-                      <tr>
-                          <td>${escapeHtml(capitalizeFirstLetter(key))}</td>
-                          <td>${escapeHtml(responseData[key])}</td>
-                      </tr>`;
-                      }
-                  }
-
-                  responseHtml += '</tbody></table>';
-              }
-          } else {
-              responseHtml += `<p class="card-text">${escapeHtml(responseData)}</p>`;
-          }
-
-          responseHtml += `
-          </div>
-      </div>`;
+              <div class="card-body">
+                <p>` + responseData + `</p>
+              </div>
+          </div>`;
 
           $("#responseContainer").html(responseHtml);
       }
@@ -153,29 +103,7 @@
               contentType: 'application/json',
               data: JSON.stringify({ message: message }),
               success: function(response) {
-                  let responseData;
-
-                  if (response['choices'] && Array.isArray(response['choices'])) {
-                      try {
-                          responseData = JSON.parse(response['choices'][0]['message']['content']);
-
-                          if (responseData['result']) {
-                              showResponse(responseData['result'], message);
-                          } else {
-                              let errorMessage = responseData['error'] || "No result found.";
-                              showResponse(errorMessage, message);
-                          }
-                      } catch (e) {
-                          let fallbackResponse = response['choices'][0]['message']['content'] || "No data available.";
-                          showResponse(fallbackResponse, message);
-                      }
-                  } else if (response['result']) {
-                      showResponse(response['result'], message);
-                  } else if (response['error']) {
-                      showResponse(`<strong>Error:</strong> ${escapeHtml(response['error'])}`);
-                  } else {
-                      showResponse("No data available.");
-                  }
+                  showResponse(response['message'], response['user_query']);
               },
               error: function(xhr, status, error) {
                   showAlert('Error! Failed to send data.', 'danger');

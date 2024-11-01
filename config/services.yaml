@@ -24,7 +24,7 @@ services:
                 
     App\Services\ChatGPTService:
         arguments:
-            $apiKey: '%env(OPENAI_API_SEC_KEY)%'
+            $apiKey: '%env(OPENAI_ALBY_INTELLIGENCE_API_KEY)%'
             $apiUrl: 'https://api.openai.com/v1/chat/completions'
             
     Elasticsearch\Client:

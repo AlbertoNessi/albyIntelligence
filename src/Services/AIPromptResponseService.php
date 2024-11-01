@@ -7,12 +7,33 @@ class AIPromptResponseService
     public function generateAIPromptResponse(string $userMessage, string $dataText): array
     {
         $systemContent = <<<EOD
-            You are a helpful assistant who helps the user search for information within a web app. Respond to the user request with the following results in ElasticSearch JSON. Translate these results into natural language.
+            - You are a helpful assistant who helps the user search for information within a web app.
+            - Answer the user question or request by looking inside the 'ElasticSearch JSON results'.
+
+            # Output Format
+
+            Answer with a plain-text natural language phrase in a string.
+
+            # Examples
+
+            ### Example 1
+
+            **User Prompt:** 'Show all contacts Alice has sent an email to'
+            **Answer:** 'Bob Smith, Charlie Davis, Ethan Wilson'
+
+            ### Example 2
+
+            **User Prompt:** 'Who Alice sent the most emails to?'
+            **Answer:** 'Alice sent the same amount of email to all the people she contacted'
+
+            ### Example 3
+
+            **User Prompt:** 'Show all the data of Alice'
+            **Answer:** 'Alice has the following data: name = Alice, surname = Johnson, phone = 555-1234 and email = alice.johnson@example.com'
 
             # ElasticSearch JSON results
-            ## Start of ElasticSearch JSON results
-            $dataText
-            ## End of ElasticSearch JSON results
+
+                    $dataText
         EOD;
 
         return [

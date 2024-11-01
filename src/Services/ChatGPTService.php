@@ -35,8 +35,7 @@ class ChatGPTService
     {
         $requestData = [
             'model' => 'gpt-4o-mini',
-            'messages' => $messages,
-            'temperature' => 0.2,
+            'messages' => $messages
         ];
 
         if ($jsonMode) {

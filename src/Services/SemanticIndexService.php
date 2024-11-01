@@ -132,6 +132,7 @@ class SemanticIndexService
             'events' => ['title', 'subtitle', 'note'],
             'messages' => ['sender', 'message', 'receiver'],
             'notes' => ['note', 'receiver'],
+            'locations' => ['name', 'address', 'city', 'province', 'region'],
         ];
     }
 
@@ -147,7 +148,9 @@ class SemanticIndexService
             'emails',
             'events',
             'messages',
-            'notes'
+            'notes',
+            'locations',
+            'reminders'
         ];
     }
 }

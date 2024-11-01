@@ -70,10 +70,8 @@ class SemanticSearchController extends AbstractController
             // GENERATE RESPONSE
             $dataText = $this->formatResults($results);
             $prompt = $this->aiPromptResponseService->generateAIPromptResponse($message, $dataText);
-            $response = $this->chatGPTService->sendRequest($prompt);
+            $response = $this->chatGPTService->sendRequest($prompt, false);
             $extractedResponse = $this->chatGPTService->extractResponseContent($response);
-
-            $this->logger->info("Dopo sendRequest");
 
             return new JsonResponse([
                 'code' => 'OK',
