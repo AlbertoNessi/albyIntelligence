@@ -1,0 +1,115 @@
+function showAlert(message, type) {
+    let alertHtml = `
+        <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>`;
+    $("#alertContainer").html(alertHtml);
+
+    setTimeout(function() {
+        $(".alert").alert('close');
+    }, 2000);
+}
+
+$('#analysePageButton').on('click', function() {
+    if (!$('#textareaContainer').length) {
+        const textareaContainer = `
+            <div id="textareaContainer" style="position: fixed; bottom: 100px; right: 20px; width: 500px;">
+                <textarea id="userPrompt" class="form-control mb-2" placeholder="Come posso fare a..." rows="3"></textarea>
+                <button id="dismissButton" class="btn btn-outline-danger mt-2"><i class="bi bi-x-lg"></i></button>
+                <button id="sendButton" class="btn btn-success mt-2" style="display: none;">Invia</button>
+            </div>
+        `;
+        $('#analysePageButton').before(textareaContainer);
+    } else {
+        $('#textareaContainer').show();
+    }
+
+    $('#userPrompt').on('input', function() {
+        if ($(this).val().trim() !== '') {
+            $('#sendButton').show();
+        } else {
+            $('#sendButton').hide();
+        }
+    });
+
+    $('#dismissButton').on('click', function() {
+        $('#userPrompt').val('');
+        $('#textareaContainer').hide();
+    });
+});
+
+$(document).on('click', '#sendButton', function() {
+    const userPrompt = $('#userPrompt').val();
+
+    if (!userPrompt) {
+        showAlert('danger', 'Please write a question before analyzing the page.');
+        return;
+    }
+
+    $('#sendButton').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Invio...');
+
+    html2canvas(document.body).then(function(canvas) {
+        canvas.toBlob(function(blob) {
+            const formData = new FormData();
+            formData.append('image', blob, `${document.title}.png`);
+            formData.append('prompt', userPrompt);
+
+            $.ajax({
+                url: '{{ path('analyzeImage_url') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#sendButton').html('Invia');
+
+                    $('#textareaContainer').hide();
+
+                    displayAnalysisResult(response);
+                },
+                error: function(xhr, status, error) {
+                    // Remove the spinner and reset the "Invia" button text
+                    $('#sendButton').html('Invia');
+
+                    showAlert('danger', 'Si è verificato un errore durante l\'analisi della pagina');
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+        });
+    });
+});
+
+// Function to display the analysis result above the button
+function displayAnalysisResult(response) {
+    if (response['code'] === '200') {
+        const content = response.response.choices[0].message.content;
+
+        if ($('#resultContainer').length) {
+            $('#resultContainer').html(`<p>${content}</p>`);
+        } else {
+            const resultContainer =
+                `<div class="card" id='resultContainer' style="position: fixed; bottom: 100px; right: 20px; width: 500px;">
+                    <div class="card-body">
+                        <p>${content}</p>
+                        <button id="dismissResultButton" class="btn btn-outline-danger btn-sm mt-2">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>`;
+            $('#analysePageButton').before(resultContainer);
+        }
+    } else {
+        showAlert('danger', 'Immagine non analizzata');
+        console.warn('Response code was not 200:', response);
+    }
+}
+
+// Handle the click event for the dismissResultButton
+$(document).on('click', '#dismissResultButton', function() {
+    $('#resultContainer').remove();
+    $('#userPrompt').val('');
+    $('#textareaContainer').show();
+});
