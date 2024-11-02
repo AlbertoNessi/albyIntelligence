@@ -85,20 +85,6 @@
             });
         });
 
-        function showAlert(message, type) {
-            let alertHtml = `
-                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                    ${message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>`;
-            $("#alertContainer").html(alertHtml);
-
-            // Make the alert disappear after 3 seconds
-            setTimeout(function() {
-                $(".alert").alert('close');
-            }, 2000);
-        }
-
         $(document).on('click', '.removeRow', function() {
             let rowId = $(this).data('id');
 

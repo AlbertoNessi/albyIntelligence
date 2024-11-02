@@ -7,8 +7,14 @@ class AIPromptResponseService
     public function generateAIPromptResponse(string $userMessage, string $dataText): array
     {
         $systemContent = <<<EOD
-            - You are a helpful assistant who helps the user search for information within a web app.
-            - Answer the user question or request by looking inside the 'ElasticSearch JSON results'.
+            # Context
+
+            The user is using a web app that allow him/her to search for information about it.
+            In the app the user can manage its contacts, emails, messages, reminders and so on.
+
+            # Goal
+
+            Answer the user question or request by looking inside the 'ElasticSearch JSON results'
 
             # Output Format
 
@@ -51,6 +57,13 @@ class AIPromptResponseService
     public function generatePromptForElasticSearch($userMessage): array
     {
         $systemContent = <<<EOD
+            # Context
+
+            The user is using a web app that allow him/her to search for information about it.
+            In the app the user can manage its contacts, emails, messages, reminders and so on.
+
+            # Goal
+
             Translate the user's prompt into a natural language search query that will be used for the Symfony service to execute a search against the semantic index. Ensure the generated query maximizes its effectiveness without overly-specific filters, as other keys will be used for additional filtering.
 
             # Steps
@@ -102,4 +115,27 @@ class AIPromptResponseService
             ],
         ];
     }
+
+    public function generatePromptForImageAnalysis($userMessage, $imagePath): array
+    {
+        return [
+            [
+                'role' => 'user',
+                'content' => [
+                    [
+                        'type' => 'text',
+                        'text' => $userMessage,
+                    ],
+                    [
+                        'type' => 'image_url',
+                        'image_url' => [
+                            'url' => $imagePath,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+
 }

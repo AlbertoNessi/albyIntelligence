@@ -5,6 +5,9 @@ namespace App\Services;
 use Exception;
 use JsonException;
 use Psr\Log\LoggerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -58,6 +61,40 @@ class ChatGPTService
 
         return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
     }
+
+    /**
+     * @throws TransportExceptionInterface
+     * @throws ServerExceptionInterface
+     * @throws RedirectionExceptionInterface
+     * @throws ClientExceptionInterface
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function sendImageRequest($messages): array
+    {
+        $requestData = [
+            'model' => 'gpt-4o-mini',
+            'messages' => $messages,
+        ];
+
+        try {
+            $response = $this->client->request('POST', 'https://api.openai.com/v1/chat/completions', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => 'Bearer ' . $this->apiKey,
+                ],
+                'json' => $requestData,
+            ]);
+        } catch (Exception $exception) {
+            $this->logger->error('Error during OpenAI image request: ' . $exception->getMessage());
+            throw new Exception($exception->getMessage());
+        }
+
+        $content = $response->getContent();
+
+        return json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+    }
+
 
     public function extractResponseContent($response): string
     {
