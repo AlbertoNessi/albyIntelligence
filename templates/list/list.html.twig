@@ -17,7 +17,8 @@
                     class="btn btn-outline-dark"
                     data-bs-toggle="modal"
                     data-bs-target="#addNewRowModal"
-                    id="addNewRowBtn">Add new</button>
+                    id="addNewRowBtn">
+                    <i class="bi bi-plus-lg"></i> Aggiungi</button>
             </div>
         </div>
         <div class="row mt-4">
@@ -43,7 +44,7 @@
                                 </td>
                             {% endfor %}
                             <td>
-                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}">Remove</button>
+                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}"><i class="bi bi-x-lg"></i></button>
                             </td>
                         </tr>
                     {% endfor %}

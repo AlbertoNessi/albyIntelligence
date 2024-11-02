@@ -134,27 +134,6 @@
           });
       }
 
-      // Function to fetch and display the last updated time
-      function fetchLastUpdatedTime() {
-          $.ajax({
-              url: "{{ path('getLastUpdatedTime_url') }}",
-              type: "GET",
-              dataType: "json",
-              success: function(response) {
-                  if (response.updatedAt) {
-                      $('#lastUpdatedTimestamp').text(response.updatedAt);
-                  } else {
-                      $('#lastUpdatedTimestamp').text('No updates yet.');
-                  }
-              },
-              error: function (xhr, status, error) {
-                  $('#lastUpdatedTimestamp').text('Error fetching last updated time.');
-              }
-          });
-      }
-
-      fetchLastUpdatedTime();
-
       $("#updateIndexBtn").on("click", function () {
           const btn = $(this);
           const normalState = btn.find('.normal-state');
