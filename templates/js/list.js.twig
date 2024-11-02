@@ -1,0 +1,52 @@
+$("#saveBtn").on("click", function (){
+    let formData = $("#addNewRowForm").serializeArray();
+    let dataObject = {};
+
+    $.each(formData, function(i, field){
+        dataObject[field.name] = field.value;
+    });
+
+    dataObject.tableName = '{{ tableName }}';
+    dataObject.table_id = '{{ table_id }}';
+
+    $.ajax({
+        url: '{{ path('addNewRow_url') }}',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify(dataObject),
+        success: function(response) {
+            showAlert('Success! Data sent successfully.', 'success');
+        },
+        error: function(xhr, status, error) {
+            showAlert('Error! Failed to send data.', 'danger');
+        },
+        complete: function() {
+            $('#addNewRowModal').modal('hide');
+            location.reload();
+        }
+    });
+});
+
+$(document).on('click', '.removeRow', function() {
+    let rowId = $(this).data('id');
+
+    // Proceed with your AJAX call to remove the row from the database
+    $.ajax({
+        url: '{{ path('delete_row_url') }}', // Adjust this to your actual route
+        type: 'POST',
+        data: {
+            id: rowId,
+            tableId: {{ table_id }}
+        },
+        success: function(response) {
+            showAlert('Row removed successfully!', 'success');
+        },
+        error: function(xhr, status, error) {
+            showAlert('Error removing row!', 'danger');
+        },
+        complete: function () {
+            $(this).closest('tr').remove();
+            location.reload();
+        }
+    });
+});
