@@ -54,6 +54,7 @@ $(document).on('click', '#sendButton', function() {
             const formData = new FormData();
             formData.append('image', blob, `${document.title}.png`);
             formData.append('prompt', userPrompt);
+            formData.append('_token', "{{ csrf_token('update_index') }}");
 
             $.ajax({
                 url: '{{ path('analyzeImage_url') }}',
