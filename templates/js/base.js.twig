@@ -15,11 +15,17 @@ $('#analysePageButton').on('click', function() {
     if (!$('#textareaContainer').length) {
         const textareaContainer = `
             <div id="textareaContainer" class="shadow p-3 bg-body-tertiary rounded" style="position: fixed; bottom: 100px; right: 20px; width: 500px;">
-                <textarea id="userPrompt" class="form-control mb-2" placeholder="Come posso fare a..." rows="3"></textarea>
-                <button id="dismissButton" class="btn btn-outline-danger mt-2"><i class="bi bi-x-lg"></i></button>
-                <button id="sendButton" class="btn btn-success mt-2" style="display: none;">
-                    <i class="bi bi-send-fill"></i> Invia
-                </button>
+                <textarea id="userPrompt" class="form-control mb-2" rows="3"></textarea>
+                <div class="row d-flex justify-content-between">
+                    <div class="col-6">
+                        <button id="dismissButton" class="btn btn-outline-danger mt-2"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button id="sendButton" class="btn btn-success mt-2" style="display: none;">
+                            <i class="bi bi-send-fill"></i> Invia
+                        </button>
+                    </div>
+                </div>
             </div>
         `;
         $('#analysePageButton').before(textareaContainer);
@@ -111,24 +117,24 @@ $(document).on('click', '#dismissResultButton', function() {
     $('#textareaContainer').show();
 });
 
-$(document).ready(function() {
-    function fetchLastUpdatedTime() {
-        $.ajax({
-            url: "{{ path('getLastUpdatedTime_url') }}",
-            type: "GET",
-            dataType: "json",
-            success: function(response) {
-                if (response.updatedAt) {
-                    $('#lastUpdatedTimestamp').text(response.updatedAt);
-                } else {
-                    $('#lastUpdatedTimestamp').text('No updates yet.');
-                }
-            },
-            error: function (xhr, status, error) {
-                $('#lastUpdatedTimestamp').text('Error fetching last updated time.');
+function fetchLastUpdatedTime() {
+    $.ajax({
+        url: "{{ path('getLastUpdatedTime_url') }}",
+        type: "GET",
+        dataType: "json",
+        success: function(response) {
+            if (response.updatedAt) {
+                $('#lastUpdatedTimestamp').text(response.updatedAt);
+            } else {
+                $('#lastUpdatedTimestamp').text('No updates yet.');
             }
-        });
-    }
+        },
+        error: function (xhr, status, error) {
+            $('#lastUpdatedTimestamp').text('Error fetching last updated time.');
+        }
+    });
+}
 
+$(document).ready(function() {
     fetchLastUpdatedTime();
 });

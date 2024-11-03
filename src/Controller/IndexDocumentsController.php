@@ -54,7 +54,6 @@ class IndexDocumentsController extends AbstractController
             $token = $request->request->get('_token');
             if (!$this->isCsrfTokenValid('update_index', $token)) {
                 return new JsonResponse([
-                    'status' => 'error',
                     'message' => 'Invalid CSRF token.'
                 ], Response::HTTP_FORBIDDEN);
             }
@@ -85,7 +84,9 @@ class IndexDocumentsController extends AbstractController
                         }
                     }
                 } catch (ClientResponseException|MissingParameterException|ServerResponseException $e) {
-                    return new JsonResponse("Error " . $e->getMessage() . " on line: " . $e->getLine(), 500);
+                    $logger->error("LINE: " . $e->getLine() . " - MESSAGE: " . $e->getMessage() . " - TRACE: " . $e->getTraceAsString() . " - FILE: " . $e->getFile());
+
+                    return new JsonResponse(['message' => "Si è verificato un errore"], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
             }
 
@@ -193,14 +194,9 @@ class IndexDocumentsController extends AbstractController
                         }
                     }
                 } catch (\Exception $e) {
-                    $logger->error("#" . $e->getLine() . " - FILE - " . $e->getFile() . ' - ERROR - Bulk indexing failed: ' . $e->getMessage() . " - TRACE - " . $e->getTraceAsString());
+                    $logger->error("LINE: " . $e->getLine() . " - MESSAGE: " . $e->getMessage() . " - TRACE: " . $e->getTraceAsString() . " - FILE: " . $e->getFile());
 
-                    $response = [
-                        'code' => 'KO',
-                        'message' => $e->getMessage() . "on line: " . $e->getLine() . " trace: " . $e->getTraceAsString(),
-                    ];
-
-                    return new JsonResponse($response, Response::HTTP_OK);
+                    return new JsonResponse(['message' => "Si è verificato un errore"], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
             } else {
                 $logger->error('ERROR - No documents to index');
@@ -209,18 +205,16 @@ class IndexDocumentsController extends AbstractController
             $logger->info('Done!');
 
             $response = [
-                'code' => 'OK',
                 'message' => 'Done!'
             ];
 
             return new JsonResponse($response, Response::HTTP_OK);
         } catch (Exception $exception) {
             $response = [
-                'code' => 'ERROR',
                 'message' => 'Si è verificato un errore: ' . $exception->getMessage() . " on line: " . $exception->getLine() . " trace: " . $exception->getTraceAsString(),
             ];
 
-            return new JsonResponse($response, Response::HTTP_OK);
+            return new JsonResponse($response, Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
 

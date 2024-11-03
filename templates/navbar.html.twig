@@ -2,7 +2,7 @@
     <h1 class="text-center fw-bold">Alby Intelligence</h1>
 </div>
 <a
-    class="btn btn-dark mx-4 my-4"
+    class="btn btn-dark mx-4 my-4 shadow"
     style="top: 0; left: 0; position: absolute"
     href="{{ path('showSemanticIndexContent_url') }}"
     role="button"
@@ -10,8 +10,10 @@
     <i class="bi bi-eye-fill"></i> Mostra indice
 </a>
 
-<button class="btn btn-dark mx-4 my-4" style="top: 0; right: 0; position: absolute" id="updateIndexBtn">
-    <span class="normal-state"><i class="bi bi-arrow-clockwise"></i> Aggiorna indice</span>
+<button class="btn btn-dark mx-4 my-4 shadow" style="top: 0; right: 0; position: absolute" id="updateIndexBtn">
+    <span class="normal-state">
+        <i class="bi bi-arrow-clockwise"></i> Aggiorna indice
+    </span>
     <span class="loading-state d-none">
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         Loading...
@@ -28,7 +30,7 @@
 <header class="text-center flex justify-around my-4">
     <a
         id="home"
-        class="btn {% if table_id == 0 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 0 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('dashboard_url') }}"
         role="button"
         aria-current="page"
@@ -36,7 +38,7 @@
 
     <a
         id="contacts"
-        class="btn {% if table_id == 1 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 1 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 1}) }}"
         role="button"
         aria-current="page"
@@ -44,7 +46,7 @@
 
     <a
         id="emails"
-        class="btn {% if table_id == 2 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 2 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 2}) }}"
         role="button"
         aria-current="page"
@@ -52,7 +54,7 @@
 
     <a
         id="messages"
-        class="btn {% if table_id == 3 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 3 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 3}) }}"
         role="button"
         aria-current="page"
@@ -60,7 +62,7 @@
 
     <a
         id="notes"
-        class="btn {% if table_id == 4 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 4 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 4}) }}"
         role="button"
         aria-current="page"
@@ -68,7 +70,7 @@
 
     <a
         id="events"
-        class="btn {% if table_id == 5 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 5 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 5}) }}"
         role="button"
         aria-current="page"
@@ -76,7 +78,7 @@
 
     <a
         id="reminders"
-        class="btn {% if table_id == 6 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 6 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 6}) }}"
         role="button"
         aria-current="page"
@@ -84,7 +86,7 @@
 
     <a
         id="calendar"
-        class="btn {% if table_id == 7 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 7 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 7}) }}"
         role="button"
         aria-current="page"
@@ -92,7 +94,7 @@
 
     <a
         id="tasks"
-        class="btn {% if table_id == 8 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 8 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 8}) }}"
         role="button"
         aria-current="page"
@@ -100,7 +102,7 @@
 
     <a
         id="notifications"
-        class="btn {% if table_id == 9 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 9 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 9}) }}"
         role="button"
         aria-current="page"
@@ -108,9 +110,10 @@
 
     <a
         id="locations"
-        class="btn {% if table_id == 10 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
+        class="btn {% if table_id == 10 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 10}) }}"
         role="button"
         aria-current="page"
     ><i class="bi bi-geo-alt"></i> Locations</a>
 </header>
+

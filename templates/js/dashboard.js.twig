@@ -8,11 +8,6 @@
               .replace(/'/g, "&#039;");
       }
 
-      function capitalizeFirstLetter(string) {
-          if (typeof string !== 'string') return string;
-          return string.charAt(0).toUpperCase() + string.slice(1);
-      }
-
       function showResponse(responseData, message) {
           let responseHtml = `
           <div class="card mt-3">
@@ -152,15 +147,9 @@
                   _token: "{{ csrf_token('update_index') }}"
               },
               success: function (response) {
-                  console.log(response);
-                  console.log(response.code);
-                  if (response.code === 'OK') {
-                      showAlert("success", response.message);
+                  showAlert("success", response.message);
 
-                      logUpdatedIndexTimestamp();
-                  } else {
-                      showAlert("warning", response.message);
-                  }
+                  logUpdatedIndexTimestamp();
               },
               error: function (xhr, status, error) {
                   console.log([xhr, status, error]);
