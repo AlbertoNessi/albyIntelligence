@@ -17,7 +17,9 @@ $('#analysePageButton').on('click', function() {
             <div id="textareaContainer" class="shadow p-3 bg-body-tertiary rounded" style="position: fixed; bottom: 100px; right: 20px; width: 500px;">
                 <textarea id="userPrompt" class="form-control mb-2" placeholder="Come posso fare a..." rows="3"></textarea>
                 <button id="dismissButton" class="btn btn-outline-danger mt-2"><i class="bi bi-x-lg"></i></button>
-                <button id="sendButton" class="btn btn-success mt-2" style="display: none;">Invia</button>
+                <button id="sendButton" class="btn btn-success mt-2" style="display: none;">
+                    <i class="bi bi-send-fill"></i> Invia
+                </button>
             </div>
         `;
         $('#analysePageButton').before(textareaContainer);
@@ -90,7 +92,7 @@ function displayAnalysisResult(response) {
         $('#resultContainer').html(`<p>${content}</p>`);
     } else {
         const resultContainer =
-            `<div class="card shadow p-3 bg-body-tertiary rounded" id='resultContainer' style="position: fixed; bottom: 100px; right: 20px; width: 500px;">
+            `<div class="card resultContainer" id='resultContainer'>
                 <div class="card-body">
                     <p>${content}</p>
                     <button id="dismissResultButton" class="btn btn-outline-danger btn-sm mt-2">

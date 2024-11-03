@@ -11,6 +11,16 @@
         <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
         {% block stylesheets %}
+            <style>
+                .resultContainer {
+                    position: fixed;
+                    bottom: 100px;
+                    right: 20px;
+                    width: 500px;
+                    max-height: 300px;
+                    overflow-y: auto;
+                }
+            </style>
         {% endblock %}
 
         {% block javascripts %}

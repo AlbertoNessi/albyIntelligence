@@ -2,12 +2,13 @@
     <h1 class="text-center fw-bold">Alby Intelligence</h1>
 </div>
 <a
-    class="btn btn-dark  mx-4 my-4"
+    class="btn btn-dark mx-4 my-4"
     style="top: 0; left: 0; position: absolute"
     href="{{ path('showSemanticIndexContent_url') }}"
     role="button"
 >
-    <i class="bi bi-eye-fill"></i> Mostra indice</a>
+    <i class="bi bi-eye-fill"></i> Mostra indice
+</a>
 
 <button class="btn btn-dark mx-4 my-4" style="top: 0; right: 0; position: absolute" id="updateIndexBtn">
     <span class="normal-state"><i class="bi bi-arrow-clockwise"></i> Aggiorna indice</span>
@@ -31,28 +32,31 @@
         href="{{ path('dashboard_url') }}"
         role="button"
         aria-current="page"
-    >Home</a>
+    ><i class="bi bi-house-door"></i> Home</a>
+
     <a
         id="contacts"
         class="btn {% if table_id == 1 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 1}) }}"
         role="button"
         aria-current="page"
-    >Contacts</a>
+    ><i class="bi bi-people"></i> Contacts</a>
+
     <a
         id="emails"
         class="btn {% if table_id == 2 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 2}) }}"
         role="button"
         aria-current="page"
-    >Emails</a>
+    ><i class="bi bi-envelope"></i> Emails</a>
+
     <a
         id="messages"
         class="btn {% if table_id == 3 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 3}) }}"
         role="button"
         aria-current="page"
-    >Messages</a>
+    ><i class="bi bi-chat-dots"></i> Messages</a>
 
     <a
         id="notes"
@@ -60,47 +64,53 @@
         href="{{ path('list_url', {id: 4}) }}"
         role="button"
         aria-current="page"
-    >Notes</a>
+    ><i class="bi bi-journal-text"></i> Notes</a>
+
     <a
         id="events"
         class="btn {% if table_id == 5 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 5}) }}"
         role="button"
         aria-current="page"
-    >Events</a>
+    ><i class="bi bi-calendar-event"></i> Events</a>
+
     <a
         id="reminders"
         class="btn {% if table_id == 6 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 6}) }}"
         role="button"
         aria-current="page"
-    >Reminders</a>
+    ><i class="bi bi-alarm"></i> Reminders</a>
+
     <a
         id="calendar"
         class="btn {% if table_id == 7 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 7}) }}"
         role="button"
         aria-current="page"
-    >Calendar</a>
+    ><i class="bi bi-calendar"></i> Calendar</a>
+
     <a
         id="tasks"
         class="btn {% if table_id == 8 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 8}) }}"
         role="button"
         aria-current="page"
-    >Tasks</a>
+    ><i class="bi bi-check2-square"></i> Tasks</a>
+
     <a
         id="notifications"
         class="btn {% if table_id == 9 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 9}) }}"
         role="button"
         aria-current="page"
-    >Notifications</a>
+    ><i class="bi bi-bell"></i> Notifications</a>
+
     <a
         id="locations"
         class="btn {% if table_id == 10 %} btn-dark {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 10}) }}"
         role="button"
         aria-current="page"
-    >Locations</a>
+    ><i class="bi bi-geo-alt"></i> Locations</a>
 </header>
