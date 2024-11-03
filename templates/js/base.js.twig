@@ -117,6 +117,112 @@ $(document).on('click', '#dismissResultButton', function() {
     $('#textareaContainer').show();
 });
 
+
+
+
+////// CONVERSATION JS
+
+
+
+
+$('#startConversationButton').on('click', function() {
+    if (!$('#chatContainer').length) {
+        const chatContainer = `
+            <div id="chatContainer" class="shadow p-3 bg-body-tertiary rounded" style="position: fixed; bottom: 100px; right: 20px; width: 500px; max-height: 400px; overflow-y: auto;">
+                <div id="chatMessages" class="mb-3" style="max-height: 300px; overflow-y: auto;"></div>
+                <textarea id="chatUserPrompt" class="form-control mb-2" placeholder="Type your question..." rows="3"></textarea>
+                <div class="row d-flex justify-content-between">
+                    <div class="col-6">
+                        <button id="chatDismissButton" class="btn btn-outline-danger mt-2"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                    <div class="col-6 text-end">
+                        <button id="chatSendButton" class="btn btn-primary mt-2" style="display: none;">
+                            <i class="bi bi-send-fill"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        $('#startConversationButton').before(chatContainer);
+    } else {
+        $('#chatContainer').show();
+    }
+
+    // Show the "Send" button only when there is input
+    $('#chatUserPrompt').on('input', function() {
+        if ($(this).val().trim() !== '') {
+            $('#chatSendButton').show();
+        } else {
+            $('#chatSendButton').hide();
+        }
+    });
+
+    // Handle dismiss button click
+    $('#chatDismissButton').on('click', function() {
+        $('#chatUserPrompt').val('');
+        $('#chatContainer').hide();
+    });
+});
+
+// Handle "Send" button click for the chat
+$(document).on('click', '#chatSendButton', function() {
+    const userPrompt = $('#chatUserPrompt').val();
+
+    if (!userPrompt) {
+        showAlert('danger', 'Please write a question before sending.');
+        return;
+    }
+
+    // Append the user message to the chat
+    $('#chatMessages').append(`<div class="alert alert-primary mb-2"><strong>You:</strong> ${userPrompt}</div>`);
+
+    $('#chatSendButton').html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Sending...');
+
+    html2canvas(document.body).then(function(canvas) {
+        canvas.toBlob(function(blob) {
+            const formData = new FormData();
+            formData.append('image', blob, `${document.title}.png`);
+            formData.append('prompt', userPrompt);
+            formData.append('_token', "{{ csrf_token('start_conversation') }}");
+
+            $.ajax({
+                url: '{{ path('startConversation_url') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    $('#chatSendButton').html('<i class="bi bi-send-fill"></i> Send');
+
+                    // Display the API response
+                    const content = response.response.choices[0].message.content;
+                    $('#chatMessages').append(`<div class="alert alert-secondary mb-2"><strong>Assistant:</strong> ${content}</div>`);
+
+                    // Scroll to the bottom of the chat container
+                    $('#chatMessages').scrollTop($('#chatMessages')[0].scrollHeight);
+                },
+                error: function(xhr, status, error) {
+                    $('#chatSendButton').html('<i class="bi bi-send-fill"></i> Send');
+
+                    showAlert('danger', 'An error occurred while sending your message.');
+                    console.log(xhr);
+                    console.log(status);
+                    console.log(error);
+                }
+            });
+        });
+    });
+
+    // Clear the textarea
+    $('#chatUserPrompt').val('');
+});
+
+
+
+//////// END
+
+
+
 function fetchLastUpdatedTime() {
     $.ajax({
         url: "{{ path('getLastUpdatedTime_url') }}",

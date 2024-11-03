@@ -60,4 +60,49 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
             return new JsonResponse(['error' => 'An error occurred while processing your request'], 500);
         }
     }
+
+    #[Route('/start_conversation', name: 'startConversation_url', methods: ['POST'])]
+    public function startConversation(Request $request): JsonResponse
+    {
+        $token = $request->request->get('_token');
+        if (!$this->isCsrfTokenValid('start_conversation', $token)) {
+            return new JsonResponse(['error' => 'Invalid CSRF token.'], Response::HTTP_FORBIDDEN);
+        }
+
+        $assistantId = 'your_assistant_id_here';
+        $prompt = $request->request->get('prompt', 'Describe the image');
+
+        // Create a new thread
+        $threadResponse = $this->chatGPTService->createThread($assistantId);
+        $threadId = $threadResponse['id'] ?? null;
+
+        if (!$threadId) {
+            return new JsonResponse(['error' => 'Failed to create a new thread.'], 500);
+        }
+
+        // Add message to the thread
+        $imageFile = $request->files->get('image');
+        if ($imageFile) {
+            $imageContent = file_get_contents($imageFile->getPathname());
+            $base64Image = base64_encode($imageContent);
+            $dataUrl = 'data:image/jpeg;base64,' . $base64Image;
+
+            $messages = [
+                [
+                    'role' => 'user',
+                    'content' => [
+                        ['type' => 'text', 'text' => $prompt],
+                        ['type' => 'image_url', 'image_url' => ['url' => $dataUrl]]
+                    ]
+                ]
+            ];
+
+            $this->chatGPTService->addMessageToThread($assistantId, $threadId, $messages);
+        }
+
+        // Run the assistant and get a response
+        $response = $this->chatGPTService->runAssistant($assistantId, $threadId);
+
+        return new JsonResponse(['response' => $response], 200);
+    }
 }

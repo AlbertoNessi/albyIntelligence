@@ -20,6 +20,11 @@
                     max-height: 300px;
                     overflow-y: auto;
                 }
+                .pageButtonContainer{
+                    bottom: 50px;
+                    right: 20px;
+                    gap: 20px;
+                }
             </style>
         {% endblock %}
 
@@ -42,9 +47,14 @@
 
         {% block body %}{% endblock %}
 
-        <button id="analysePageButton" class="btn btn-dark position-fixed shadow-lg" style="bottom: 50px; right: 20px;">
-            <i class="bi bi-search"></i>  X Ray
-        </button>
+        <div class="d-flex justify-content-end position-fixed pageButtonContainer">
+            <button id="startConversationButton" class="btn btn-primary shadow">
+                <i class="bi bi-chat-left-text"></i> Start Conversation
+            </button>
+            <button id="analysePageButton" class="btn btn-dark shadow">
+                <i class="bi bi-search"></i> X Ray
+            </button>
+        </div>
 
         {% block footer %}
             {% include('footer.html.twig') %}

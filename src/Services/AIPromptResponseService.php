@@ -137,5 +137,26 @@ class AIPromptResponseService
         ];
     }
 
+    public function generatePromptForConversation($userMessage, $imagePath): array
+    {
+        return [
+            [
+                'role' => 'user',
+                'content' => [
+                    [
+                        'type' => 'text',
+                        'text' => $userMessage,
+                    ],
+                    [
+                        'type' => 'image_url',
+                        'image_url' => [
+                            'url' => $imagePath,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
 
 }
