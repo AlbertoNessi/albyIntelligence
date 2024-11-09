@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Services\AIPromptResponseService;
+use App\Services\AlbyIntelligenceAssistantAPIService;
 use Exception;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,20 +12,23 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
+use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
+use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class AlbyIntelligenceImageAnalysisController extends AbstractController
 {
     private ChatGPTService $chatGPTService;
+    private AlbyIntelligenceAssistantAPIService $assistantAPIService;
     private AIPromptResponseService $aiPromptResponseService;
-    private CsrfTokenManagerInterface $csrfTokenManager;
     private Loggerinterface $logger;
 
-    public function __construct(ChatGPTService $chatGPTService, AIPromptResponseService $aiPromptResponseService, CsrfTokenManagerInterface $csrfTokenManager, LoggerInterface $logger)
+    public function __construct(ChatGPTService $chatGPTService, AlbyIntelligenceAssistantAPIService $assistantAPIService, AIPromptResponseService $aiPromptResponseService, LoggerInterface $logger)
     {
         $this->chatGPTService = $chatGPTService;
+        $this->assistantAPIService = $assistantAPIService;
         $this->aiPromptResponseService = $aiPromptResponseService;
-        $this->csrfTokenManager = $csrfTokenManager;
         $this->logger = $logger;
     }
 
@@ -61,6 +65,9 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
         }
     }
 
+    /**
+     * @throws \JsonException
+     */
     #[Route('/start_conversation', name: 'startConversation_url', methods: ['POST'])]
     public function startConversation(Request $request): JsonResponse
     {
@@ -69,40 +76,50 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
             return new JsonResponse(['error' => 'Invalid CSRF token.'], Response::HTTP_FORBIDDEN);
         }
 
-        $assistantId = 'your_assistant_id_here';
         $prompt = $request->request->get('prompt', 'Describe the image');
 
-        // Create a new thread
-        $threadResponse = $this->chatGPTService->createThread($assistantId);
-        $threadId = $threadResponse['id'] ?? null;
+        try {
+            $assistant = $this->assistantAPIService->createAssistant();
+            $threadData = $this->assistantAPIService->createThread();
+            $threadId = $threadData['id'] ?? null;
 
-        if (!$threadId) {
-            return new JsonResponse(['error' => 'Failed to create a new thread.'], 500);
-        }
+            if (!$threadId) {
+                return new JsonResponse(['error' => 'Failed to create a new thread.'], 500);
+            }
 
-        // Add message to the thread
-        $imageFile = $request->files->get('image');
-        if ($imageFile) {
-            $imageContent = file_get_contents($imageFile->getPathname());
-            $base64Image = base64_encode($imageContent);
-            $dataUrl = 'data:image/jpeg;base64,' . $base64Image;
+            $imageFile = $request->files->get('image');
+            if ($imageFile) {
+                $imageContent = file_get_contents($imageFile->getPathname());
+                $base64Image = base64_encode($imageContent);
+                $dataUrl = 'data:image/jpeg;base64,' . $base64Image;
 
-            $messages = [
-                [
+                $messages = [
                     'role' => 'user',
                     'content' => [
-                        ['type' => 'text', 'text' => $prompt],
-                        ['type' => 'image_url', 'image_url' => ['url' => $dataUrl]]
+                        [
+                            'type' => 'text',
+                            'text' => $prompt
+                        ],
+                        [
+                            'type' => 'image_url',
+                            'image_url' => [
+                                'url' => $dataUrl
+                            ],
+                            "detail" => "low"
+                        ]
                     ]
-                ]
-            ];
+                ];
 
-            $this->chatGPTService->addMessageToThread($assistantId, $threadId, $messages);
+                $this->assistantAPIService->addMessageToThread($threadId, $messages);
+            }
+
+            $response = $this->assistantAPIService->runAssistant($assistant['id'], $threadId);
+
+            return new JsonResponse(['response' => $response], 200);
+        } catch (Exception|ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
+            $this->logger->error("LINE: " . $e->getLine() . " - MESSAGE: " . $e->getMessage() . " - TRACE: " . $e->getTraceAsString() . " - FILE: " . $e->getFile());
+
+            return new JsonResponse(['message' => "Si è verificato un errore"], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        // Run the assistant and get a response
-        $response = $this->chatGPTService->runAssistant($assistantId, $threadId);
-
-        return new JsonResponse(['response' => $response], 200);
     }
 }
