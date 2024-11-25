@@ -154,8 +154,8 @@ class IndexDocumentsCommand extends Command
         $this->processEntities(
             Locations::class,
             'locations',
-            ['name', 'address', 'city', 'province', 'region'],
-            ['name', 'address', 'city', 'province', 'region'],
+            ['name', 'address', 'city', 'region'],
+            ['name', 'address', 'city', 'region'],
             $documents,
             $output
         );

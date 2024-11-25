@@ -12,10 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface;
-use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
 class AlbyIntelligenceImageAnalysisController extends AbstractController
 {
@@ -47,7 +43,7 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
         $prompt = $request->request->get('prompt', 'Describe the image');
 
         if (!$imageFile) {
-            return new JsonResponse(['error' => 'No image provided'], 400);
+            throw new Exception('No image provided');
         }
 
         $imageContent = file_get_contents($imageFile->getPathname());
@@ -73,20 +69,31 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
     {
         $token = $request->request->get('_token');
         if (!$this->isCsrfTokenValid('start_conversation', $token)) {
-            return new JsonResponse(['error' => 'Invalid CSRF token.'], Response::HTTP_FORBIDDEN);
+            throw new Exception('Invalid CSRF token');
         }
 
         $prompt = $request->request->get('prompt', 'Describe the image');
 
         try {
             $assistant = $this->assistantAPIService->createAssistant();
+        } catch (Exception $e) {
+            $this->logger->error("Failed to create assistant: " . $e->getMessage(), ['line' => $e->getLine(), 'file' => $e->getFile()]);
+            return new JsonResponse(['message' => "Failed to create assistant"], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        try {
             $threadData = $this->assistantAPIService->createThread();
             $threadId = $threadData['id'] ?? null;
-
+            
             if (!$threadId) {
-                return new JsonResponse(['error' => 'Failed to create a new thread.'], 500);
+                throw new Exception('Failed to create a new thread');
             }
+        } catch (Exception $e) {
+            $this->logger->error("Failed to create thread: " . $e->getMessage(), ['line' => $e->getLine(), 'file' => $e->getFile()]);
+            return new JsonResponse(['message' => "Failed to create thread"], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
 
+        try {
             $imageFile = $request->files->get('image');
             if ($imageFile) {
                 $imageContent = file_get_contents($imageFile->getPathname());
@@ -110,16 +117,25 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
                     ]
                 ];
 
-                $this->assistantAPIService->addMessageToThread($threadId, $messages);
+                try {
+                    $this->assistantAPIService->addMessageToThread($threadId, $messages);
+                } catch (Exception $e) {
+                    $this->logger->error("Failed to add message to thread: " . $e->getMessage(), ['line' => $e->getLine(), 'file' => $e->getFile()]);
+                    return new JsonResponse(['message' => "Failed to add message to thread"], Response::HTTP_INTERNAL_SERVER_ERROR);
+                }
             }
-
-            $response = $this->assistantAPIService->runAssistant($assistant['id'], $threadId);
-
-            return new JsonResponse(['response' => $response], 200);
-        } catch (Exception|ClientExceptionInterface|RedirectionExceptionInterface|ServerExceptionInterface|TransportExceptionInterface $e) {
-            $this->logger->error("LINE: " . $e->getLine() . " - MESSAGE: " . $e->getMessage() . " - TRACE: " . $e->getTraceAsString() . " - FILE: " . $e->getFile());
-
-            return new JsonResponse(['message' => "Si è verificato un errore"], Response::HTTP_INTERNAL_SERVER_ERROR);
+        } catch (Exception $e) {
+            $this->logger->error("Error processing image: " . $e->getMessage(), ['line' => $e->getLine(), 'file' => $e->getFile()]);
+            return new JsonResponse(['message' => "Error processing image"], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+
+        try {
+            $response = $this->assistantAPIService->runAssistant($assistant['id'], $threadId);
+        } catch (Exception $e) {
+            $this->logger->error("Failed to run assistant: " . $e->getMessage(), ['line' => $e->getLine(), 'file' => $e->getFile()]);
+            return new JsonResponse(['message' => "Failed to run assistant"], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
+        return new JsonResponse(['response' => $response], 200);
     }
 }

@@ -3,7 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\LocationsRepository;
-use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: LocationsRepository::class)]
@@ -22,9 +21,6 @@ class Locations
 
     #[ORM\Column(length: 20, nullable: true)]
     private ?string $city = null;
-
-    #[ORM\Column(length: 10, nullable: true)]
-    private ?string $province = null;
 
     #[ORM\Column(length: 10, nullable: true)]
     private ?string $region = null;
@@ -66,18 +62,6 @@ class Locations
     public function setCity(?string $city): static
     {
         $this->city = $city;
-
-        return $this;
-    }
-
-    public function getProvince(): ?string
-    {
-        return $this->province;
-    }
-
-    public function setProvince(?string $province): static
-    {
-        $this->province = $province;
 
         return $this;
     }

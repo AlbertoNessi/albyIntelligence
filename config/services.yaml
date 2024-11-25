@@ -47,3 +47,14 @@ services:
     NLPProcessorService:
         class: App\Services\NLPProcessorService
         public: true
+    
+    App\Services\AlbyIntelligenceAssistantAPIService:
+        public: true
+        arguments:
+            $apiKey: '%env(OPENAI_ALBY_INTELLIGENCE_API_KEY)%'
+            $createThreadUrl: 'https://api.openai.com/v1/threads'
+            $createAssistantUrl: 'https://api.openai.com/v1/assistants'
+            $client: '@http_client'
+            $logger: '@logger'
+            $contentType: 'application/json'
+            $openAIBeta: 'assistants=v2'

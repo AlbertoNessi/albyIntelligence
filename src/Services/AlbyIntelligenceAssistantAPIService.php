@@ -15,17 +15,30 @@ class AlbyIntelligenceAssistantAPIService
 {
     private string $apiKey;
     private string $createThreadUrl;
-    private string $createAssistantUrl;
+    private string $createAssistantUrl; 
     private HttpClientInterface $client;
     private LoggerInterface $logger;
+    private string $contentType;
+    private string $openAIBeta;
+    private const BEARER = 'Bearer ';
 
-    public function __construct(string $apiKey, string $createThreadUrl, string $createAssistantUrl, HttpClientInterface $client, LoggerInterface $logger)
+    public function __construct(
+        string $apiKey,
+        string $createThreadUrl,
+        string $createAssistantUrl,
+        HttpClientInterface $client,
+        LoggerInterface $logger,
+        string $contentType,
+        string $openAIBeta
+    )
     {
         $this->apiKey = $apiKey;
         $this->createThreadUrl = $createThreadUrl;
         $this->createAssistantUrl = $createAssistantUrl;
         $this->client = $client;
         $this->logger = $logger;
+        $this->contentType = $contentType;
+        $this->openAIBeta = $openAIBeta;
     }
 
     /**
@@ -41,9 +54,9 @@ class AlbyIntelligenceAssistantAPIService
         try {
             $response = $this->client->request('POST', $this->createAssistantUrl, [
                 'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'OpenAI-Beta' => 'assistants=v2'
+                    'Content-Type' => $this->contentType,
+                    'Authorization' => $this::BEARER . $this->apiKey,
+                    'OpenAI-Beta' => $this->openAIBeta
                 ],
                 'json' => [
                     'instructions' => 'You are a helpful assistant that helps the user navigate a web app.',
@@ -78,9 +91,9 @@ class AlbyIntelligenceAssistantAPIService
         try {
             $response = $this->client->request('POST', $this->createThreadUrl, [
                 'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'OpenAI-Beta' => 'assistants=v2'
+                    'Content-Type' => $this->contentType,
+                    'Authorization' => $this::BEARER . $this->apiKey,
+                    'OpenAI-Beta' => $this->openAIBeta
                 ],
                 'json' => [],
             ]);
@@ -108,9 +121,9 @@ class AlbyIntelligenceAssistantAPIService
         try {
             $response = $this->client->request('POST', $url, [
                 'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => 'Bearer ' . $this->apiKey,
-                    'OpenAI-Beta' => 'assistants=v2'
+                    'Content-Type' => $this->contentType,
+                    'Authorization' => $this::BEARER . $this->apiKey,
+                    'OpenAI-Beta' => $this->openAIBeta
                 ],
                 'json' => $messages,
             ]);
@@ -138,9 +151,9 @@ class AlbyIntelligenceAssistantAPIService
 
         $response = $this->client->request('POST', $url, [
             'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Bearer ' . $this->apiKey,
-                'OpenAI-Beta' => 'assistants=v2'
+                'Content-Type' => $this->contentType,
+                'Authorization' => $this::BEARER . $this->apiKey,
+                'OpenAI-Beta' => $this->openAIBeta
             ],
             'json' => [
                 "assistant_id" => $assistantId
