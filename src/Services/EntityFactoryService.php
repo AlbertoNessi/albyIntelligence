@@ -15,7 +15,7 @@ class EntityFactoryService
         $entity = new $entityClass();
 
         foreach ($parameters as $field => $value) {
-            $setter = 'set' . ucfirst($field);
+            $setter = self::snakeToCamel('set_' . $field);
 
             if (method_exists($entity, $setter)) {
                 if (!($value instanceof \DateTimeInterface) && str_contains(strtolower($field), 'date')) {
@@ -42,5 +42,11 @@ class EntityFactoryService
         } catch (\Exception $e) {
             throw new BadRequestException("Invalid date format.");
         }
+    }
+
+    private static function snakeToCamel(string $string): string
+    {
+        $string = str_replace('_', '', ucwords($string, '_'));
+        return lcfirst($string);
     }
 }

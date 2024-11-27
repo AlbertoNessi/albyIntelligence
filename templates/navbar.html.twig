@@ -1,32 +1,43 @@
 <div class="d-flex justify-content-center py-3">
-    <h1 class="text-center fw-bold">Alby Intelligence</h1>
+    <div class="text-center">
+        <h1 class="text-center fw-bold">SEC BI</h1>
+        <small>The Sec Business Intelligence</small>
+    </div>
 </div>
+
 <a
     class="btn btn-dark mx-4 my-4 shadow"
     style="top: 0; left: 0; position: absolute"
-    href="{{ path('showSemanticIndexContent_url') }}"
+    href="{{ path('showDocumentation_url') }}"
     role="button"
 >
-    <i class="bi bi-eye-fill"></i> Mostra indice
+    <i class="bi bi-files"></i> Gestisci documentazione
 </a>
 
-<button class="btn btn-dark mx-4 my-4 shadow" style="top: 0; right: 0; position: absolute" id="updateIndexBtn">
-    <span class="normal-state">
-        <i class="bi bi-arrow-clockwise"></i> Aggiorna indice
-    </span>
-    <span class="loading-state d-none">
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Loading...
-    </span>
-</button>
+<div class="buttonContainerPosition">
+    <a
+        class="btn btn-dark mx-4 my-4 shadow"
+        href="{{ path('showSemanticIndexContent_url') }}"
+        role="button"
+    >
+        <i class="bi bi-eye-fill"></i> Mostra indice
+    </a>
+    <button class="btn btn-dark mx-4 my-4 shadow" id="updateIndexBtn">
+        <span class="normal-state">
+            <i class="bi bi-arrow-clockwise"></i> Aggiorna indice
+        </span>
+        <span class="loading-state d-none">
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Loading...
+        </span>
+    </button>
+</div>
+
 
 <div id="lastUpdatedTime" class="mx-4 my-4 text-success" style="position: absolute; top: 50px; right: 0;">
     Ultimo aggiornamento: <small id="lastUpdatedTimestamp"></small>
 </div>
 
-<div class="text-center">
-    <h6>A simple project to mimic Apple Intelligence with Symfony and the ChatGPT API</h6>
-</div>
 <header class="text-center flex justify-around my-4">
     <a
         id="home"

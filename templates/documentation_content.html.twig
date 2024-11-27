@@ -1,0 +1,59 @@
+{% extends('base.html.twig') %}
+
+{% block modals %}
+    {% include('modals/add_new_row_modal.html.twig') %}
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="row justify-content-end">
+            <div class="col-auto">
+                <button
+                    type="button"
+                    class="btn btn-outline-dark"
+                    data-bs-toggle="modal"
+                    data-bs-target="#addNewRowModal"
+                    id="addNewRowBtn">
+                    <i class="bi bi-plus-lg"></i> Aggiungi</button>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <table class="table table-hover table-bordered table-striped border-dark" id="listTable">
+                <thead>
+                <tr>
+                    {% for column in columns %}
+                        <th scope="col">{{ column }}</th>
+                    {% endfor %}
+                    <td></td>
+                </tr>
+                </thead>
+                <tbody>
+                {% for row in data %}
+                    <tr>
+                        {% for column, value in row %}
+                            <td>
+                                {% if column matches '/date/i' %}
+                                    {{ value|date("d-m-Y") }}
+                                {% else %}
+                                    {{ value }}
+                                {% endif %}
+                            </td>
+                        {% endfor %}
+                        <td>
+                            <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}"><i class="bi bi-x-lg"></i></button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block js %}
+    {{ parent() }}
+    {{ include('js/list.js.twig') }}
+{% endblock %}
+
+
+

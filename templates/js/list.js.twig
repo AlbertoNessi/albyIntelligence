@@ -16,13 +16,13 @@ $("#saveBtn").on("click", function (){
         data: JSON.stringify(dataObject),
         success: function(response) {
             showAlert('Success! Data sent successfully.', 'success');
+            location.reload();
         },
         error: function(xhr, status, error) {
             showAlert('Error! Failed to send data.', 'danger');
         },
         complete: function() {
             $('#addNewRowModal').modal('hide');
-            location.reload();
         }
     });
 });

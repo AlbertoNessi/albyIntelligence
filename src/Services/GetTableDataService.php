@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entity\CalendarEvents;
 use App\Entity\Contacts;
+use App\Entity\Documentation;
 use App\Entity\Emails;
 use App\Entity\Events;
 use App\Entity\FileDocuments;
@@ -29,7 +30,7 @@ class GetTableDataService
         9 => ['id', 'message', 'flagRead', 'action'],
         10 => ['id', 'name', 'address', 'city', 'province', 'region'],
         11 => ['id', 'filename', 'filepath', 'uploadedAt', 'fileType', 'uploadedBy'],
-        12 => ['id', 'query', 'searchedAt'],
+        12 => ['id', 'context', 'problem_title', 'problem_description', 'solution'],
     ];
 
     private const array TABLE_NAMES = [
@@ -44,7 +45,7 @@ class GetTableDataService
         9 => 'notifiche',
         10 => 'localita',
         11 => 'file',
-        12 => 'cronologia ricerche',
+        12 => 'documentazione',
     ];
 
     private const array TABLE_ENTITY_NAMES = [
@@ -58,7 +59,8 @@ class GetTableDataService
         8 => Tasks::class,
         9 => Notifications::class,
         10 => Locations::class,
-        11 => FileDocuments::class
+        11 => FileDocuments::class,
+        12 => Documentation::class
     ];
 
     public function getColumnsByTableId(int $tableId): array
@@ -88,16 +90,12 @@ class GetTableDataService
             // Convert objects to array of arrays with only specified columns
             return array_map(static function($entity) use ($columns) {
                 $data = [];
-
-                // Ensure ID is included
-                $data['id'] = $entity->getId();
-
                 foreach ($columns as $column) {
-                    $getter = 'get' . ucfirst($column);
+                    $getter = self::snakeToCamel('get_' . $column);
                     if (method_exists($entity, $getter)) {
                         $data[$column] = $entity->$getter();
                     } else {
-                        dd($getter);
+                        dd("Getter method $getter does not exist on " . get_class($entity));
                     }
                 }
                 return $data;
@@ -105,5 +103,11 @@ class GetTableDataService
         }
 
         return [];
+    }
+
+    private static function snakeToCamel(string $string): string
+    {
+        $string = str_replace('_', '', ucwords($string, '_'));
+        return lcfirst($string);
     }
 }
