@@ -14,69 +14,70 @@ class Documentation
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $context = null;
+    #[ORM\Column(length: 255)]
+    private ?string $title = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $problem_title = null;
+    #[ORM\Column(type: 'text')]
+    private ?string $content = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $problem_description = null;
+    #[ORM\Column(length: 100, nullable: true)]
+    private ?string $section = null;
 
-    #[ORM\Column(type: 'text', nullable: true)]
-    private ?string $solution = null;
+    #[ORM\Column(length: 50, nullable: true)]
+    private ?string $type = null;
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getContext(): ?string
+    public function getTitle(): ?string
     {
-        return $this->context;
+        return $this->title;
     }
 
-    public function setContext(?string $context): static
+    public function setTitle(string $title): static
     {
-        $this->context = $context;
+        $this->title = $title;
 
         return $this;
     }
 
-    public function getProblemTitle(): ?string
+    public function getContent(): ?string
     {
-        return $this->problem_title;
+        return $this->content;
     }
 
-    public function setProblemTitle(?string $problem_title): static
+    public function setContent(string $content): static
     {
-        $this->problem_title = $problem_title;
+        $this->content = $content;
 
         return $this;
     }
 
-    public function getProblemDescription(): ?string
+    public function getSection(): ?string
     {
-        return $this->problem_description;
+        return $this->section;
     }
 
-    public function setProblemDescription(?string $problem_description): static
+    public function setSection(?string $section): static
     {
-        $this->problem_description = $problem_description;
+        $this->section = $section;
 
         return $this;
     }
 
-    public function getSolution(): ?string
+    public function getType(): ?string
     {
-        return $this->solution;
+        return $this->type;
     }
 
-    public function setSolution(?string $solution): static
+    public function setType(?string $type): static
     {
-        $this->solution = $solution;
+        $this->type = $type;
 
         return $this;
     }
+
 
 }

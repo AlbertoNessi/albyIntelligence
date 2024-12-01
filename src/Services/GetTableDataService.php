@@ -30,7 +30,7 @@ class GetTableDataService
         9 => ['id', 'message', 'flagRead', 'action'],
         10 => ['id', 'name', 'address', 'city', 'province', 'region'],
         11 => ['id', 'filename', 'filepath', 'uploadedAt', 'fileType', 'uploadedBy'],
-        12 => ['id', 'context', 'problem_title', 'problem_description', 'solution'],
+        12 => ['id', 'title', 'content', 'section', 'type'],
     ];
 
     private const array TABLE_NAMES = [
