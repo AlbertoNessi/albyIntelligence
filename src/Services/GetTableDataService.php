@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entity\CalendarEvents;
 use App\Entity\Contacts;
+use App\Entity\Customers;
 use App\Entity\Documentation;
 use App\Entity\Emails;
 use App\Entity\Events;
@@ -14,6 +15,7 @@ use App\Entity\Notes;
 use App\Entity\Notifications;
 use App\Entity\Reminders;
 use App\Entity\Tasks;
+use App\Entity\Orders;
 use Doctrine\ORM\EntityManagerInterface;
 
 class GetTableDataService
@@ -31,6 +33,8 @@ class GetTableDataService
         10 => ['id', 'name', 'address', 'city', 'province', 'region'],
         11 => ['id', 'filename', 'filepath', 'uploadedAt', 'fileType', 'uploadedBy'],
         12 => ['id', 'title', 'content', 'section', 'type'],
+        13 => ['id', 'createdAt', 'totalAmount', 'customer', 'shippingAddress', 'billingAddress', 'notes'],
+        14 => ['id', 'name', 'email', 'code'],
     ];
 
     private const array TABLE_NAMES = [
@@ -46,6 +50,8 @@ class GetTableDataService
         10 => 'localita',
         11 => 'file',
         12 => 'documentazione',
+        13 => 'ordini',
+        14 => 'clienti',
     ];
 
     private const array TABLE_ENTITY_NAMES = [
@@ -60,7 +66,9 @@ class GetTableDataService
         9 => Notifications::class,
         10 => Locations::class,
         11 => FileDocuments::class,
-        12 => Documentation::class
+        12 => Documentation::class,
+        13 => Orders::class,
+        14 => Customers::class
     ];
 
     public function getColumnsByTableId(int $tableId): array

@@ -18,7 +18,8 @@
                     data-bs-toggle="modal"
                     data-bs-target="#addNewRowModal"
                     id="addNewRowBtn">
-                    <i class="bi bi-plus-lg"></i> Aggiungi</button>
+                    <i class="bi bi-plus-lg"></i> Aggiungi
+                </button>
             </div>
         </div>
         <div class="row mt-4">
@@ -28,7 +29,7 @@
                         {% for column in columns %}
                             <th scope="col">{{ column }}</th>
                         {% endfor %}
-                        <td></td>
+                        <th scope="col">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -36,7 +37,11 @@
                         <tr>
                             {% for column, value in row %}
                                 <td>
-                                    {% if column matches '/date/i' %}
+                                    {% if column matches '/datetime/i' and value.format is defined %}
+                                        {{ value|date("d-m-Y H:i") }}
+                                    {% elseif column matches '/date/i' and value.format is defined %}
+                                        {{ value|date("d-m-Y") }}
+                                    {% elseif value.format is defined %}
                                         {{ value|date("d-m-Y") }}
                                     {% else %}
                                         {{ value }}
@@ -44,7 +49,9 @@
                                 </td>
                             {% endfor %}
                             <td>
-                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}"><i class="bi bi-x-lg"></i></button>
+                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
                             </td>
                         </tr>
                     {% endfor %}

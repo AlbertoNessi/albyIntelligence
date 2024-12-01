@@ -1,6 +1,8 @@
 <div class="d-flex justify-content-center py-3">
     <div class="text-center">
-        <h1 class="text-center fw-bold">Alby Intelligence</h1>
+        <h1 class="text-center fw-bold">
+            <a href="/" style="text-decoration: none; color: black">Alby Intelligence</a>
+        </h1>
     </div>
 </div>
 
@@ -10,7 +12,7 @@
     href="{{ path('showDocumentation_url') }}"
     role="button"
 >
-    <i class="bi bi-files"></i> Gestisci documentazione
+    <i class="bi bi-journal-code"></i> Gestisci documentazione
 </a>
 
 <div class="buttonContainerPosition">
@@ -39,12 +41,20 @@
 
 <header class="text-center flex justify-around my-4">
     <a
-        id="home"
-        class="btn {% if table_id == 0 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
-        href="{{ path('dashboard_url') }}"
+        id="contacts"
+        class="btn {% if table_id == 13 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 13}) }}"
         role="button"
         aria-current="page"
-    ><i class="bi bi-house-door"></i> Home</a>
+    ><i class="bi bi-bag"></i> Ordini</a>
+
+    <a
+        id="contacts"
+        class="btn {% if table_id == 14 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
+        href="{{ path('list_url', {id: 14}) }}"
+        role="button"
+        aria-current="page"
+    ><i class="bi bi-people"></i> Clienti</a>
 
     <a
         id="contacts"
@@ -52,7 +62,7 @@
         href="{{ path('list_url', {id: 1}) }}"
         role="button"
         aria-current="page"
-    ><i class="bi bi-people"></i> Contacts</a>
+    ><i class="bi bi-person-vcard"></i> Contacts</a>
 
     <a
         id="emails"
@@ -110,20 +120,20 @@
         aria-current="page"
     ><i class="bi bi-check2-square"></i> Tasks</a>
 
-    <a
+    {# <a
         id="notifications"
         class="btn {% if table_id == 9 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 9}) }}"
         role="button"
         aria-current="page"
-    ><i class="bi bi-bell"></i> Notifications</a>
+    ><i class="bi bi-bell"></i> Notifications</a> #}
 
-    <a
+    {# <a
         id="locations"
         class="btn {% if table_id == 10 %} btn-dark shadow {% else %} btn-outline-dark {% endif %} menuItems"
         href="{{ path('list_url', {id: 10}) }}"
         role="button"
         aria-current="page"
-    ><i class="bi bi-geo-alt"></i> Locations</a>
+    ><i class="bi bi-geo-alt"></i> Locations</a> #}
 </header>
 

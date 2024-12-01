@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Contacts;
+use App\Entity\Documentation;
 use App\Entity\Emails;
 use App\Entity\Events;
 use App\Entity\LastIndexUpdate;
@@ -69,6 +70,7 @@ class IndexDocumentsController extends AbstractController
                 'reminders',
                 'tasks',
                 'locations',
+                'documentation'
             ];
 
             // Delete existing indices
@@ -153,6 +155,14 @@ class IndexDocumentsController extends AbstractController
                 'locations',
                 ['name', 'address', 'city', 'province', 'region'],
                 ['name', 'address', 'city', 'province', 'region'],
+                $documents
+            );
+
+            $semanticIndexService->processEntities(
+                Documentation::class,
+                'documentation',
+                ['title', 'content', 'section', 'type'],
+                ['title', 'content', 'section', 'type'],
                 $documents
             );
 
