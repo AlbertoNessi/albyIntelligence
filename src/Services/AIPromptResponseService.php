@@ -118,6 +118,8 @@ class AIPromptResponseService
 
     public function generatePromptForImageAnalysis($userMessage, $imagePath): array
     {
+        $userMessage .= ".   Answer with a simple structured HTML ouput. No titles. Just content";
+        
         return [
             [
                 'role' => 'user',

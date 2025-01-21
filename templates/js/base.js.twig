@@ -95,14 +95,22 @@ function displayAnalysisResult(response) {
     const content = response.response.choices[0].message.content;
 
     if ($('#resultContainer').length) {
-        $('#resultContainer').html(`<p>${content}</p>`);
+        $('#resultContainer .card-body-content').html(`<pre><code>${content}</code></pre>`);
     } else {
         const resultContainer =
-            `<div class="card resultContainer" id='resultContainer'>
-                <div class="card-body">
-                    <p>${content}</p>
-                    <button id="dismissResultButton" class="btn btn-outline-danger btn-sm mt-2">
-                        <i class="bi bi-x-lg"></i>
+            `<div 
+                class="card resultContainer shadow-lg" 
+                id="resultContainer" 
+                style="position: fixed; bottom: 100px; right: 20px; width: 500px; max-height: 300px;"
+            >
+                <div class="card-body" style="overflow-y: auto; max-height: 250px;">
+                    <div class="card-body-content">
+                        <pre><code>${content}</code></pre>
+                    </div>
+                </div>
+                <div class="card-footer text-end" style="background: white;">
+                    <button id="dismissResultButton" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-x-lg"></i> Dismiss
                     </button>
                 </div>
             </div>`;

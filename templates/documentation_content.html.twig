@@ -14,7 +14,8 @@
                     data-bs-toggle="modal"
                     data-bs-target="#addNewRowModal"
                     id="addNewRowBtn">
-                    <i class="bi bi-plus-lg"></i> Aggiungi</button>
+                    <i class="bi bi-plus-lg"></i> Aggiungi
+                </button>
             </div>
         </div>
         <div class="row mt-4">
@@ -22,9 +23,9 @@
                 <thead>
                 <tr>
                     {% for column in columns %}
-                        <th scope="col">{{ column }}</th>
+                        <th scope="col">{{ column|capitalize }}</th>
                     {% endfor %}
-                    <td></td>
+                    <th scope="col">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -40,7 +41,21 @@
                             </td>
                         {% endfor %}
                         <td>
-                            <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}"><i class="bi bi-x-lg"></i></button>
+                            <!-- Flex Container for Buttons -->
+                            <div class="d-flex gap-2">
+                                <!-- Edit Button -->
+                                <button
+                                    class="btn btn-outline-primary editRow"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addNewRowModal"
+                                    data-row='{{ row|json_encode|e('html_attr') }}'>
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <!-- Remove Button -->
+                                <button class="btn btn-outline-danger removeRow" data-id="{{ row.id }}">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 {% endfor %}
@@ -54,6 +69,3 @@
     {{ parent() }}
     {{ include('js/list.js.twig') }}
 {% endblock %}
-
-
-

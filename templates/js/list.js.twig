@@ -50,3 +50,165 @@ $(document).on('click', '.removeRow', function() {
         }
     });
 });
+
+// js/list.js.twig
+
+$(document).ready(function () {
+    const addNewRowBtn = $('#addNewRowBtn');
+    const saveBtn = $('#saveBtn');
+    const addNewRowModal = $('#addNewRowModal');
+    const addNewRowForm = $('#addNewRowForm');
+    const liveAlertPlaceholder = $('#liveAlertPlaceholder');
+    let isEditMode = false;
+
+    // Function to show alerts
+    function showAlert(message, type = 'success') {
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        liveAlertPlaceholder.append(alertHtml);
+    }
+
+    // Handle Add New Row Button Click
+    addNewRowBtn.on('click', function () {
+        isEditMode = false;
+        addNewRowForm[0].reset();
+        $('#addNewRowModalLabel').text('Add New Row');
+        $('#rowId').val('');
+    });
+
+    // Delegate Edit Row Button Click
+    $('#listTable').on('click', '.editRow', function () {
+        isEditMode = true;
+        const rowData = $(this).data('row');
+        $('#addNewRowModalLabel').text('Edit Row');
+        $('#rowId').val(rowData.id);
+
+        // Populate form fields with row data
+        {% for column in columns %}
+            {% if column != 'id' %}
+                $('#{{ column }}').val(rowData.{{ column }});
+            {% endif %}
+        {% endfor %}
+    });
+
+    // Handle Save Button Click
+    saveBtn.on('click', function () {
+        const formData = addNewRowForm.serializeArray();
+        const data = {};
+        $.each(formData, function (index, field) {
+            data[field.name] = field.value;
+        });
+
+        if (isEditMode) {
+            // Perform AJAX request to update the row
+            $.ajax({
+                url: `/your-update-route/${data.id}`, // Replace with your actual update route
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (result) {
+                    if (result.success) {
+                        // Update the table row in the DOM
+                        const row = $(`button.editRow[data-row-id="${data.id}"]`).closest('tr');
+                        {% for column in columns %}
+                            {% if column != 'id' %}
+                                {% if column matches '/date/i' %}
+                                    row.find(`td:eq({{ loop.index0 }})`).text(new Date(data.{{ column }}).toLocaleDateString('it-IT'));
+                                {% else %}
+                                    row.find(`td:eq({{ loop.index0 }})`).text(data.{{ column }});
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        showAlert('Row updated successfully!', 'success');
+                        addNewRowModal.modal('hide');
+                    } else {
+                        showAlert('Failed to update the row.', 'danger');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    showAlert('An error occurred while updating the row.', 'danger');
+                }
+            });
+        } else {
+            // Perform AJAX request to add a new row
+            $.ajax({
+                url: '/your-add-route', // Replace with your actual add route
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function (result) {
+                    if (result.success) {
+                        // Append the new row to the table
+                        let newRowHtml = '<tr>';
+                        {% for column in columns %}
+                            {% if column != 'id' %}
+                                {% if column matches '/date/i' %}
+                                    newRowHtml += `<td>${new Date(data.{{ column }}).toLocaleDateString('it-IT')}</td>`;
+                                {% else %}
+                                    newRowHtml += `<td>${data.{{ column }}}</td>`;
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                        newRowHtml += `
+                            <td>
+                                <button
+                                    class="btn btn-outline-primary editRow"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#addNewRowModal"
+                                    data-row='${JSON.stringify(result.data)}'>
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button
+                                    class="btn btn-outline-danger removeRow"
+                                    data-id="${result.data.id}">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                        $('#listTable tbody').append(newRowHtml);
+                        showAlert('Row added successfully!', 'success');
+                        addNewRowForm[0].reset();
+                        addNewRowModal.modal('hide');
+                    } else {
+                        showAlert('Failed to add the row.', 'danger');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    showAlert('An error occurred while adding the row.', 'danger');
+                }
+            });
+        }
+    });
+
+    // Delegate Remove Row Button Click
+    $('#listTable').on('click', '.removeRow', function () {
+        const rowId = $(this).data('id');
+        const button = $(this);
+        if (confirm('Are you sure you want to remove this row?')) {
+            // Perform AJAX request to delete the row
+            $.ajax({
+                url: `/your-delete-route/${rowId}`, // Replace with your actual delete route
+                method: 'DELETE',
+                success: function (result) {
+                    if (result.success) {
+                        // Remove the row from the DOM
+                        button.closest('tr').remove();
+                        showAlert('Row removed successfully!', 'success');
+                    } else {
+                        showAlert('Failed to remove the row.', 'danger');
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error:', error);
+                    showAlert('An error occurred while removing the row.', 'danger');
+                }
+            });
+        }
+    });
+});
