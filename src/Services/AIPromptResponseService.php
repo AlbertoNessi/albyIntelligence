@@ -116,9 +116,21 @@ class AIPromptResponseService
         ];
     }
 
-    public function generatePromptForImageAnalysis($userMessage, $imagePath): array
+    public function generatePromptForImageAnalysis($userMessage, $imagePath, $sectionName): array
     {
-        $userMessage .= ".   Answer with a simple structured HTML ouput. No titles. Just content";
+        $userMessage .= 
+        ".  # Context
+            The user is using a web app that allow him/her to search for information about it.
+            In the app the user can manage its contacts, emails, messages, reminders and so on.
+            The user is asking informations about the current section in the application, which now is $sectionName.
+            
+            #Goal
+            Help the user with his question, it could be a problem or a request for suggestion.
+            Look at the image and answer with a simple text ouput in italian. No titles. Just content. Strait to the point.
+            
+            #NOTE
+            Keep the focus on the current page, it should be like if the user is asking for help to his collegue next to him. 
+            They are looking at the same section.";
         
         return [
             [

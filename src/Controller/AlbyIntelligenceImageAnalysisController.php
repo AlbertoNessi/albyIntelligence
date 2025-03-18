@@ -41,6 +41,7 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
 
         $imageFile = $request->files->get('image');
         $prompt = $request->request->get('prompt', 'Describe the image');
+        $sectionName = $request->request->get('sectionName');
 
         if (!$imageFile) {
             throw new Exception('No image provided');
@@ -51,7 +52,7 @@ class AlbyIntelligenceImageAnalysisController extends AbstractController
         $dataUrl = 'data:image/jpeg;base64,' . $base64Image;
 
         try {
-            $messages = $this->aiPromptResponseService->generatePromptForImageAnalysis($prompt, $dataUrl);
+            $messages = $this->aiPromptResponseService->generatePromptForImageAnalysis($prompt, $dataUrl, $sectionName);
             $response = $this->chatGPTService->sendImageRequest($messages);
 
             return new JsonResponse(['response' => $response], 200);

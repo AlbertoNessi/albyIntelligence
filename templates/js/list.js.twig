@@ -1,67 +1,16 @@
-$("#saveBtn").on("click", function (){
-    let formData = $("#addNewRowForm").serializeArray();
-    let dataObject = {};
-
-    $.each(formData, function(i, field){
-        dataObject[field.name] = field.value;
-    });
-
-    dataObject.tableName = '{{ tableName }}';
-    dataObject.table_id = '{{ table_id }}';
-
-    $.ajax({
-        url: '{{ path('addNewRow_url') }}',
-        type: 'POST',
-        contentType: 'application/json',
-        data: JSON.stringify(dataObject),
-        success: function(response) {
-            showAlert('Success! Data sent successfully.', 'success');
-            location.reload();
-        },
-        error: function(xhr, status, error) {
-            showAlert('Error! Failed to send data.', 'danger');
-        },
-        complete: function() {
-            $('#addNewRowModal').modal('hide');
-        }
-    });
-});
-
-$(document).on('click', '.removeRow', function() {
-    let rowId = $(this).data('id');
-
-    // Proceed with your AJAX call to remove the row from the database
-    $.ajax({
-        url: '{{ path('delete_row_url') }}', // Adjust this to your actual route
-        type: 'POST',
-        data: {
-            id: rowId,
-            tableId: {{ table_id }}
-        },
-        success: function(response) {
-            showAlert('Row removed successfully!', 'success');
-        },
-        error: function(xhr, status, error) {
-            showAlert('Error removing row!', 'danger');
-        },
-        complete: function () {
-            $(this).closest('tr').remove();
-            location.reload();
-        }
-    });
-});
-
-// js/list.js.twig
-
 $(document).ready(function () {
     const addNewRowBtn = $('#addNewRowBtn');
     const saveBtn = $('#saveBtn');
     const addNewRowModal = $('#addNewRowModal');
     const addNewRowForm = $('#addNewRowForm');
     const liveAlertPlaceholder = $('#liveAlertPlaceholder');
+    const routes = {
+        add: "{{ path('addNewRow_url') }}",
+        update: "{{ path('update_row_url', {'id': 'ID_PLACEHOLDER'}) }}",
+        delete: "{{ path('delete_row_url') }}"
+    };
     let isEditMode = false;
 
-    // Function to show alerts
     function showAlert(message, type = 'success') {
         const alertHtml = `
             <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -72,7 +21,6 @@ $(document).ready(function () {
         liveAlertPlaceholder.append(alertHtml);
     }
 
-    // Handle Add New Row Button Click
     addNewRowBtn.on('click', function () {
         isEditMode = false;
         addNewRowForm[0].reset();
@@ -80,14 +28,14 @@ $(document).ready(function () {
         $('#rowId').val('');
     });
 
-    // Delegate Edit Row Button Click
     $('#listTable').on('click', '.editRow', function () {
         isEditMode = true;
         const rowData = $(this).data('row');
         $('#addNewRowModalLabel').text('Edit Row');
         $('#rowId').val(rowData.id);
+        $('#addNewRowForm').data('original-id', rowData.id);
+        $('#addNewRowForm').data('table-id', rowData.table_id);
 
-        // Populate form fields with row data
         {% for column in columns %}
             {% if column != 'id' %}
                 $('#{{ column }}').val(rowData.{{ column }});
@@ -95,7 +43,6 @@ $(document).ready(function () {
         {% endfor %}
     });
 
-    // Handle Save Button Click
     saveBtn.on('click', function () {
         const formData = addNewRowForm.serializeArray();
         const data = {};
@@ -103,54 +50,68 @@ $(document).ready(function () {
             data[field.name] = field.value;
         });
 
+        const tableId = addNewRowForm.data('table-id');
+
+        data['table_id'] = tableId;
+
+        console.log(fdata);
+        console.log(JSON.stringify(data));
+
         if (isEditMode) {
-            // Perform AJAX request to update the row
+            const rowId = addNewRowForm.data('original-id');
+            const updateUrl = routes.update.replace('ID_PLACEHOLDER', rowId);
+
             $.ajax({
-                url: `/your-update-route/${data.id}`, // Replace with your actual update route
+                url: updateUrl,
                 method: 'POST',
                 contentType: 'application/json',
-                data: JSON.stringify(data),
+                data: JSON.stringify({
+                    ...data,
+                    table_id: tableId
+                }),
                 success: function (result) {
                     if (result.success) {
-                        // Update the table row in the DOM
-                        const row = $(`button.editRow[data-row-id="${data.id}"]`).closest('tr');
+                        const updatedData = result.data;
+                        const row = $(`button.editRow[data-row='${JSON.stringify({ id: rowId })}']`).closest('tr');
+
                         {% for column in columns %}
                             {% if column != 'id' %}
+                                {% set index = loop.index0 %}
                                 {% if column matches '/date/i' %}
-                                    row.find(`td:eq({{ loop.index0 }})`).text(new Date(data.{{ column }}).toLocaleDateString('it-IT'));
+                                    row.find('td').eq({{ index }}).text(new Date(updatedData.{{ column }}).toLocaleDateString('it-IT'));
                                 {% else %}
-                                    row.find(`td:eq({{ loop.index0 }})`).text(data.{{ column }});
+                                    row.find('td').eq({{ index }}).text(updatedData.{{ column }});
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
+
+                        row.find('.editRow').data('row', updatedData);
                         showAlert('Row updated successfully!', 'success');
                         addNewRowModal.modal('hide');
                     } else {
-                        showAlert('Failed to update the row.', 'danger');
+                        showAlert(`Failed to update the row: ${result.error}`, 'danger');
                     }
                 },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
+                error: function () {
                     showAlert('An error occurred while updating the row.', 'danger');
                 }
             });
         } else {
-            // Perform AJAX request to add a new row
             $.ajax({
-                url: '/your-add-route', // Replace with your actual add route
+                url: routes.add,
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(data),
                 success: function (result) {
                     if (result.success) {
-                        // Append the new row to the table
+                        const newData = result.data;
                         let newRowHtml = '<tr>';
                         {% for column in columns %}
                             {% if column != 'id' %}
                                 {% if column matches '/date/i' %}
-                                    newRowHtml += `<td>${new Date(data.{{ column }}).toLocaleDateString('it-IT')}</td>`;
+                                    newRowHtml += `<td>${new Date(newData.{{ column }}).toLocaleDateString('it-IT')}</td>`;
                                 {% else %}
-                                    newRowHtml += `<td>${data.{{ column }}}</td>`;
+                                    newRowHtml += `<td>${newData.{{ column }}}</td>`;
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
@@ -160,12 +121,12 @@ $(document).ready(function () {
                                     class="btn btn-outline-primary editRow"
                                     data-bs-toggle="modal"
                                     data-bs-target="#addNewRowModal"
-                                    data-row='${JSON.stringify(result.data)}'>
+                                    data-row='${JSON.stringify(newData)}'>
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <button
                                     class="btn btn-outline-danger removeRow"
-                                    data-id="${result.data.id}">
+                                    data-id="${newData.id}">
                                     <i class="bi bi-x-lg"></i>
                                 </button>
                             </td>
@@ -175,37 +136,35 @@ $(document).ready(function () {
                         addNewRowForm[0].reset();
                         addNewRowModal.modal('hide');
                     } else {
-                        showAlert('Failed to add the row.', 'danger');
+                        showAlert(`Failed to add the row: ${result.error}`, 'danger');
                     }
                 },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
+                error: function () {
                     showAlert('An error occurred while adding the row.', 'danger');
                 }
             });
         }
     });
 
-    // Delegate Remove Row Button Click
     $('#listTable').on('click', '.removeRow', function () {
         const rowId = $(this).data('id');
         const button = $(this);
+
         if (confirm('Are you sure you want to remove this row?')) {
-            // Perform AJAX request to delete the row
             $.ajax({
-                url: `/your-delete-route/${rowId}`, // Replace with your actual delete route
-                method: 'DELETE',
+                url: routes.delete,
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ id: rowId, tableId: tableId }),
                 success: function (result) {
                     if (result.success) {
-                        // Remove the row from the DOM
                         button.closest('tr').remove();
                         showAlert('Row removed successfully!', 'success');
                     } else {
-                        showAlert('Failed to remove the row.', 'danger');
+                        showAlert(`Failed to remove the row: ${result.error}`, 'danger');
                     }
                 },
-                error: function (xhr, status, error) {
-                    console.error('Error:', error);
+                error: function () {
                     showAlert('An error occurred while removing the row.', 'danger');
                 }
             });

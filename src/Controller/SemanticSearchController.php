@@ -120,6 +120,7 @@ class SemanticSearchController extends AbstractController
      */
     private function formatResults(array $results): string
     {
+        dd($results['message']);
         $dataText = '';
         foreach ($results['message'] as $result) {
             if (isset($result['_source'])) {

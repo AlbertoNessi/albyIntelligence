@@ -310,7 +310,9 @@ class IndexDocumentsController extends AbstractController
         return $this->render('current_semantic_index_content.html.twig', [
             'indices' => $indices,
             'documents' => $documents,
-            'table_id' => ''
+            'table_id' => '',
+            'tableName' => 'Mostra indice',
+            'list' => ''
         ]);
     }
 }
